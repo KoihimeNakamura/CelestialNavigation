@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StarSystemGurpsGen
 {
-    class Star : Orbital  {
+   partial class Star : Orbital  {
 
         readonly public static int IS_PRIMARY = 9000; //flag for orbitals
         readonly public static int IS_SECONDARY = 9001;
         readonly public static int IS_TRINARY = 9002;
         readonly public static int IS_SECCOMP = 9011;
         readonly public static int IS_TRICOMP = 9012;
+
+        readonly public static int GASGIANT_NONE = 700;
+        readonly public static int GASGIANT_CONVENTIONAL = 701;
+        readonly public static int GASGIANT_ECCENTRIC = 702;
+        readonly public static int GASGIANT_EPISTELLAR = 703;
+
 
         //properties of the star
         public decimal mass { get; protected set; }
@@ -32,7 +39,9 @@ namespace StarSystemGurpsGen
         public decimal totalLifeSpan { get; set; }
         public String parentName { get; set; }
         public int gasGiantFlag { get; set; }
+
         public List<Orbital> ourOrbitals { get; set; }
+        public systemZones zonesOfInterest { get; protected set; }
         public int orderID { get; set; }
 
 
@@ -41,19 +50,20 @@ namespace StarSystemGurpsGen
             this.orbitalRadius = 0.0m;
             this.gasGiantFlag = 0; //set to none automatically. We will set it correctly later.
 
+
             ourOrbitals = new List<Orbital>(); //You'd think I'd remember to do that here.
 
         }
 
         public Star(decimal age, int parent, int self, int order, string baseName)
-            : base(parent, self)
-        {
+            : base(parent, self){
             this.age = age;
             this.orbitalRadius = 0.0m;
-            this.gasGiantFlag = 0; //set to none automatically. We will set it correctly later.
+            this.gasGiantFlag = Star.GASGIANT_NONE; //set to none automatically. We will set it correctly later.
             this.orderID = order;
             this.genGenericName(baseName);
 
+            zonesOfInterest = new systemZones(order);
             ourOrbitals = new List<Orbital>(); //You'd think I'd remember to do that here.
         }
 
@@ -66,6 +76,17 @@ namespace StarSystemGurpsGen
             this.ourOrbitals.Add(s);
         }
 
+       //testing function
+        public bool testInitlizationZones()
+        {
+            if (this.zonesOfInterest == null) return false;
+            return true;
+        }
+
+        public void initalizeZonesOfInterest(){
+            zonesOfInterest = new systemZones(orderID);
+        }
+
         public void printAllOrbitals()
         {
             Console.WriteLine("This star's orbital array contains: ");
@@ -76,14 +97,11 @@ namespace StarSystemGurpsGen
         }
 
         public void updateMass(decimal mass){
-            if (this.determineStatus() == 4){
-                this.mass = mass;
-                
-            }
-            else {
-                this.mass = mass;
-                this.initMass = mass; 
-            }
+            if (mass == 0m) throw new ArgumentException("Argument is 0 masses.");
+            this.mass = mass;
+
+            if (this.determineStatus() != 4)    this.initMass = mass;
+           
         }
 
         public void setInitMass(decimal mass)
@@ -339,6 +357,7 @@ namespace StarSystemGurpsGen
             
 
             decimal tmpDbl = 0.0m, minMass, massRange, minLumin, luminRange;
+            if (this.mass >= minLuminTable[33][0]) return 16m;
             for (int i = 0; i < minLuminTable.Length; i++){
                 if (this.mass >= minLuminTable[i][0] && this.mass < minLuminTable[i + 1][0]){
                     //get the minimum mass and mass Range
@@ -427,7 +446,7 @@ namespace StarSystemGurpsGen
             this.totalLifeSpan = this.mainLimit + this.subLimit + this.giantLimit;
         }
 
-         public override String ToString()
+        public override String ToString()
         {
 
             String desc;
@@ -443,7 +462,7 @@ namespace StarSystemGurpsGen
 
 
             if (this.isFlareStar) lumType += "e";
-            
+
             //Console.WriteLine("LumType is {0}", lumType);
             desc = this.name + " ";
 
@@ -451,41 +470,45 @@ namespace StarSystemGurpsGen
             if (this.parentID == 0 && this.selfID == 0) desc += " (primary) : ";
             if (this.parentID == 0 && this.selfID == 1) desc += " (secondary) : ";
             if (this.parentID == 0 && this.selfID == 2) desc += " (trinary) : ";
-            
 
-            desc += this.specType + " " + lumType + " star, " + this.mass + " solar masses, " + Math.Round(this.currLumin,4) + " solar luminosity";
-            desc += '\n' + spacing + Math.Round(this.effTemp,2) + "K effective temperature, " + Math.Round(this.radius,4) + " AU radius";
-            desc += '\n' + spacing + this.getStarPopType() + " (" + this.age + " Gyr), total lifespan " + Math.Round(this.totalLifeSpan,2) + " Gyr";
+
+            desc += this.specType + " " + lumType + " star, " + this.mass + " solar masses, ";
+            //+ Math.Round(this.currLumin, 4) + " solar luminosity";
+            if (this.currLumin < 0.0001m) desc = desc + "negliable solar luminosity";
+            else desc = desc + Math.Round(this.currLumin, 4) + " solar luminosity";
+            desc += Environment.NewLine + spacing + Math.Round(this.effTemp, 2) + "K effective temperature, " + Math.Round(this.radius, 4) + " AU radius";
+            desc += Environment.NewLine + spacing + this.getStarPopType() + " (" + this.age + " Gyr), total lifespan " + Math.Round(this.totalLifeSpan, 2) + " Gyr";
 
             //describe what's left
             if (this.determineStatus() == 1)
             {
-                desc += '\n' + spacing + "There is " + Math.Round((this.mainLimit - this.age),3) + " Gyr left on the main sequence.";
+                desc += Environment.NewLine + spacing + "There is " + Math.Round((this.mainLimit - this.age), 3) + " Gyr left on the main sequence.";
 
             }
 
             if (this.determineStatus() == 2)
             {
-                desc += '\n' + spacing + "There is " + Math.Round((this.subLimit - (this.age + this.mainLimit)), 3) + " Gyr left on the subgiant sequence.";
+                desc += Environment.NewLine + spacing + "There is " + Math.Round((this.subLimit - (this.age + this.mainLimit)), 3) + " Gyr left on the subgiant sequence.";
             }
 
             if (this.determineStatus() == 3)
             {
-                desc += '\n' + spacing + "There is " + Math.Round((this.giantLimit - (this.age + this.mainLimit + this.subLimit)),3) + " Gyr left on the giant sequence.";
+                desc += Environment.NewLine + spacing + "There is " + Math.Round((this.giantLimit - (this.age + this.mainLimit + this.subLimit)), 3) + " Gyr left on the giant sequence.";
             }
-            desc += '\n' + spacing + "Stage: " + this.getStatusDesc() + ".";
+            desc += Environment.NewLine + spacing + "Stage: " + this.getStatusDesc() + ".";
+            desc += Environment.NewLine + spacing + "Main Sequence Length: " + Math.Round(this.mainLimit, 3) + " Gyr.";
 
             if (this.isFlareStar)
-                desc += '\n' + spacing + "NOTE: This is a flare star.";
+                desc += Environment.NewLine + spacing + "NOTE: This is a flare star.";
 
             //orbital details
             if (this.parentID != Star.IS_PRIMARY)
             {
-                desc += '\n' + spacing + "This orbits " + this.parentName + " at a radius of ";
-                desc += Math.Round(this.orbitalRadius,4) + " AU; (" + this.getSeperationStr() + ")";
-                desc += "\n" + spacing;
-                desc += "Period: " + Math.Round(this.orbitalPeriod,4) + " yr; Eccentricity: " + this.orbitalEccent;
-                if (this.orbitalEccent != 0) desc += "\n" + spacing +  "(Peripasis is " + Math.Round(this.getPeriapsis(),4) + " AU, apapsis " + Math.Round(this.getApapsis(),4) + " AU)";
+                desc += Environment.NewLine + spacing + "This orbits " + this.parentName + " at a radius of ";
+                desc += Math.Round(this.orbitalRadius, 4) + " AU; (" + this.getSeperationStr() + ")";
+                desc += Environment.NewLine + spacing;
+                desc += "Period: " + Math.Round(this.orbitalPeriod, 4) + " yr; Eccentricity: " + this.orbitalEccent;
+                if (this.orbitalEccent != 0) desc += Environment.NewLine + spacing + "(Peripasis is " + Math.Round(this.getPeriapsis(), 4) + " AU, apapsis " + Math.Round(this.getApapsis(), 4) + " AU)";
             }
 
             return desc;
@@ -504,7 +527,7 @@ namespace StarSystemGurpsGen
                 else return Math.Round((.01m * (decimal)Math.Sqrt((double)this.currLumin)),3);
          }
 
-        protected decimal getCollapsedSpace(){
+        public decimal getCollapsedSpace(){
              return .01m* (decimal)Math.Sqrt((double)this.maxLumin);
         }
 
@@ -515,9 +538,9 @@ namespace StarSystemGurpsGen
          */
         public decimal outerRadius()
         {
-            Console.WriteLine("OUTER RADIUS INVOKED");
-            Console.WriteLine("Init Mass: {0}, outerRadius is {1}", this.initMass, 40m * this.initMass);
-            Console.ReadLine();
+            //Console.WriteLine("OUTER RADIUS INVOKED");
+            //Console.WriteLine("Init Mass: {0}, outerRadius is {1}", this.initMass, 40m * this.initMass);
+            //Console.ReadLine();
             return Math.Round((40m * this.initMass),3);
         }
 
@@ -549,6 +572,228 @@ namespace StarSystemGurpsGen
         {
             return Math.Round(3m * this.getApapsis(),3);
         }
-    
+
+        public void updateStar(decimal mass, Dice ourDice)
+        {
+            int NUMPLACESLUM = 5; //This saves me time.
+
+            this.updateMass(mass);
+            //CASE 1: MASS is between .1 and .45 solar masses
+            if (mass >= .1m && mass < .45m)
+            {
+                //see if it's a flare star.
+                if (ourDice.gurpsRoll() >= 12) this.isFlareStar = true;
+
+                this.specType = Star.getStellarTypeFromMass(mass); //get the spectral type
+
+                //Get the temperature and query user about changes
+                this.setTemperature();
+
+                //Set luminosity and query user about changes && in the case of status 0 stars, the current luminosity IS the initial luminosity. (Set from user input)
+                this.setLumin();
+                this.updateLumin(Math.Round(this.currLumin, NUMPLACESLUM));
+
+
+                //we have no clue what the actual lifespan is.
+                this.mainLimit = 1300.0m; // also used to tell the object this should be status 0.
+                this.totalLifeSpanUp(); //update the list
+            }
+
+            if (mass >= .45m && mass < .95m)
+            {
+                //see if it's a flare star.
+                if (mass <= .525m)
+                {
+                    if (ourDice.gurpsRoll() >= 12) this.isFlareStar = true;
+                }
+                //The luminosity type can be auto determined. No point in doing it here, really.
+
+                //now that we've done that, we set the SPECTRAL type, and status. 
+                this.specType = Star.getStellarTypeFromMass(mass);
+                this.setMainLimit(); //required before we attempt to set luminosity (because this also sets status, now)
+
+                //now we set luminosity! :D (Unlike in under .45 masses, inital luminosity is locked.)
+                this.setLumin();
+                //Console.WriteLine("Status is {0} and minLum is {1}", this.determineStatus(), this.getMinLumin());
+                this.updateLumin(Math.Round(this.currLumin, NUMPLACESLUM));
+
+                //set temperature.
+                this.setTemperature();
+                this.totalLifeSpanUp();
+            }
+
+            if (mass >= .95m && mass <= 2m)
+            {
+                //Now we can generate with all fields
+
+                //set limits for all age fields
+                this.setMainLimit();
+                this.setSubLimit();
+                this.setGiantLimit();
+                this.totalLifeSpanUp(); //when we actually have all three, we can just total them up. Like sane people.
+
+                if (this.determineStatus() == 1)
+                {
+                    //process as if they're 
+                    this.specType = Star.getStellarTypeFromMass(mass);
+
+                    //now we set luminosity! :D
+                    this.setLumin();
+                    this.updateLumin(Math.Round(this.currLumin, NUMPLACESLUM));
+
+                    //set temperature.
+                    this.setTemperature();
+                }
+
+                //subgiant status
+                if (this.determineStatus() == 2)
+                {
+                    this.setLumin(); //autogenerate luminosity
+                    this.updateLumin(Math.Round(this.currLumin, NUMPLACESLUM)); //for a subgiant stage, current luminosity is = max luminosity
+
+                    //set temperature and then get the stellar type
+                    this.setTemperature(); //First step, read from table
+                    this.effTemp = (this.effTemp - (this.age - this.mainLimit) * (this.effTemp - 4800));
+
+                    this.specType = Star.getStellarTypeFromTemp(this.effTemp);
+                }
+
+                //giant stage
+                if (this.determineStatus() == 3)
+                {
+                    this.setLumin(); //autogenerate luminosity
+                    this.updateLumin(Math.Round(this.currLumin, NUMPLACESLUM));
+
+                    //set temperature and get spectral type
+                    this.effTemp = 3000 + (ourDice.six(2, -2) * 200);
+                    this.specType = Star.getStellarTypeFromTemp(this.effTemp);
+                }
+
+                //White dwarf stage
+                if (this.determineStatus() == 4)
+                {
+                    //white dwarves are a bit of a special case.
+                    this.specType = "DC";
+
+                    this.setLumin(); //autogenerate luminosity
+
+                    //reset to accommodate for the fact it's a dead star now. :/
+                    this.updateMass(.9m + (ourDice.six(2, -2) * .05m));
+                    this.updateLumin(.00003m * ourDice.six());
+
+                    //not that accurate, not that wrong though..
+                    decimal whiteDwarfSpan = this.age - this.mainLimit;
+                    if (whiteDwarfSpan < 1.0m) this.effTemp = 10000m;
+                    if (1.0m <= whiteDwarfSpan && whiteDwarfSpan < 2.5m) this.effTemp = 5000m;
+                    if (whiteDwarfSpan >= 2.5m) this.effTemp = 3796m;
+
+                }
+
+            }
+
+
+            this.setRadius(); //before we leave, set the radius
+
+        }
+
+        public void updateTemp(decimal effTemp){
+            if (this.determineStatus() == 2 || this.determineStatus() == 3){
+                this.effTemp = effTemp;
+                this.specType = Star.getStellarTypeFromTemp(this.effTemp);
+            }
+            if (this.determineStatus() == 1) this.effTemp = effTemp;
+        }
+
+       //return ranges.
+        public Range getEpistellarRange(){
+            return new Range(.1m * this.innerRadius(), 1.8m * this.innerRadius());
+        }
+
+        public Range getEccentricRange(){
+            return new Range(.125m * this.snowLine(), .75m * this.snowLine());
+        }
+
+        public Range getConventionalRange(){
+            return new Range(this.snowLine(), 1.5m * this.snowLine());
+        }
+
+        public Range fullCreationRange()
+        {
+            return new Range(this.innerRadius(), this.outerRadius());
+        }
+
+
+       //passthrough functions
+        public void createForbiddenZone(Range incoming, int primary, int secondary){
+            this.zonesOfInterest.createForbiddenZone(incoming, primary, secondary);
+        }
+
+        public void createCleanZones(){
+            this.zonesOfInterest.createCleanZones(this.innerRadius(), this.outerRadius());
+        }
+
+        public void sortForbidden(){
+            this.zonesOfInterest.sortForbiddenZones();
+        }
+
+        public void sortClean(){
+            this.zonesOfInterest.sortCleanZones();
+        }
+
+       public decimal verifyRange(Range incoming){
+           return this.zonesOfInterest.verifyRange(incoming);
+        }
+
+       public decimal pickInRange(Range incoming){
+           return this.zonesOfInterest.pickInRange(incoming);
+       }
+
+       public bool verifyCleanOrbit(decimal incoming){
+           return this.zonesOfInterest.isWithinCleanZone(incoming);
+       }
+
+       public bool verifyForbiddenOrbit(decimal incoming){
+           return this.zonesOfInterest.isWithinForbiddenZone(incoming);
+       }
+
+       public decimal getNextCleanOrbit(decimal orbit){
+           return this.zonesOfInterest.getNextCleanOrbit(orbit);
+       }
+
+       public decimal getMinCleanOrbit(){
+           return this.zonesOfInterest.getMinimalCleanZone();
+       }
+
+       public decimal getMaxCleanOrbit(){
+           return this.zonesOfInterest.getMaximalCleanZone();
+       }
+
+       //gas giant checks (all passthrough, but simplify  the call.
+        public decimal checkEpiRange(){
+            return this.zonesOfInterest.verifyRange(this.getEpistellarRange());
+        }
+
+        public decimal checkEccRange(){
+            return this.zonesOfInterest.verifyRange(this.getEccentricRange());
+        }
+
+        public decimal checkConRange(){
+            return this.zonesOfInterest.verifyRange(this.getConventionalRange());
+        }
+
+
+    }
+
+
+    /// <summary>
+    ///  I'm not sure I need this.
+    /// </summary>
+    public static class listRemoveCLR{
+        public static void FastRemoveAll<T>(this BindingList<T> list, Func<T, bool> predicate)
+        {
+            for (int i = list.Count - 1; i >= 0; i--)
+                if (predicate(list[i]))
+                    list.RemoveAt(i);
+        }
     }
 }

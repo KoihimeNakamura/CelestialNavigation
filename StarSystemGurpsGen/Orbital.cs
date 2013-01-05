@@ -62,26 +62,4 @@ namespace StarSystemGurpsGen
             this.name = "Orbital " + this.selfID;
         }
     }
-
-    class AsteroidBelt : Orbital{
-        
-        public AsteroidBelt(int parentID, int selfID): base (parentID, selfID){
-          
-        }
-        
-        public AsteroidBelt(int parentID, int selfID, decimal radius) : base(parentID, selfID, radius)
-        {
-
-        }
-
-        protected int RVM { get; set; }
-
-        public override string ToString()
-        {
-            String myStr = "Orbital " + this.selfID + " : Asteroid Belt at " + orbitalRadius.ToString() + "AU (RVM " + RVM + " )\n";
-            myStr = myStr + " Blackbody Temperature is " + blackbodyTemp.ToString() +"K. "; 
-            return myStr;
-
-        }
-    }
 }
