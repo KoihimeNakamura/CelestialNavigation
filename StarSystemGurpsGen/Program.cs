@@ -20,12 +20,12 @@ namespace StarSystemGurpsGen
             Application.Run(new StarSystemGurpsGen());
         }
 
-        public static void generateAStar(Star tempStar, Dice ourDice, decimal maxMass, bool forceGarden, bool forceHighMass)
+        public static void generateAStar(Star tempStar, Dice ourDice, double maxMass, bool forceGarden, bool forceHighMass)
         {
 
-            decimal mass = 0.0m;
+            double mass = 0.0;
 
-            if (maxMass != 0.1m)
+            if (maxMass != 0.1)
             {
                 do
                 {
@@ -34,7 +34,7 @@ namespace StarSystemGurpsGen
 
                     if (forceGarden)
                     {
-                        rollA = ourDice.six();
+                        rollA = ourDice.rng(6);
                         if (rollA == 1) rollA = 5;
                         if (rollA == 2) rollA = 6;
                         if (rollA == 3 || rollA == 4) rollA = 7;
@@ -42,7 +42,7 @@ namespace StarSystemGurpsGen
                     }
 
                     if (forceHighMass){
-                        rollA = ourDice.anySize(5) + 2;
+                        rollA = ourDice.rng(6) + 2;
                     }
 
                     tempStar.updateMass(Star.stellarMass(rollA, rollB)); //set the mass
@@ -51,13 +51,18 @@ namespace StarSystemGurpsGen
                     mass = tempStar.mass;
                 } while (mass > maxMass);
             }
-            if (maxMass == 0.1m){
-                tempStar.updateMass(.1m);
-                mass = .1m;
+            if (maxMass == 0.1){
+                tempStar.updateMass(.1);
+                mass = .1;
             }
 
             tempStar.updateStar(mass, ourDice);
 
+        }
+
+        public static double GetRatio(double x, double dest)
+        {
+            return (dest) / (x);
         }
 
         public static DialogResult InputBox(string title, string promptText, ref string value)

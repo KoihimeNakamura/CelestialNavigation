@@ -22,6 +22,7 @@ namespace StarSystemGurpsGen
         readonly public static int CONTENT_TERRESTIAL = 212;
         readonly public static int CONTENT_ASTEROIDBELT = 213;
         readonly public static int CONTENT_EMPTY = 999;
+        readonly public static int CONTENT_UNSET = -1;
 
         readonly public static int CONTENT_ICE = 214;
         readonly public static int CONTENT_ROCK = 215;
@@ -33,10 +34,12 @@ namespace StarSystemGurpsGen
         readonly public static int CONTENT_GREENHOUSE = 221;
         readonly public static int CONTENT_CHTHONIAN = 222;
 
+        readonly public static int SIZE_UNSET = CONTENT_UNSET;
         readonly public static int SIZE_SMALL = 12;
         readonly public static int SIZE_TINY = 13;
         readonly public static int SIZE_STANDARD = 14;
         readonly public static int SIZE_LARGE = 15;
+        readonly public static int SIZE_MEDIUM = 16;
 
         //fields
         public bool isMoon { get; set; }
@@ -53,19 +56,23 @@ namespace StarSystemGurpsGen
         public int outerMoonlets { get; set; }
 
         //general properties
-        public decimal diameter { get; set; }
-        public decimal mass { get; set; }
-        public decimal density { get; set; }
-        public decimal gravity { get; set; }
+        public double diameter { get; set; }
+        public double mass { get; set; }
+        public double density { get; set; }
+        public double gravity { get; set; }
 
         //terrestial qualities
-        public decimal hydCoverage { get; set; }
-        public decimal atmMass { get; set; }
-        public decimal atmPres { get; set; }
+        public double hydCoverage { get; set; }
+        public double atmMass { get; set; }
+        public double atmPres { get; set; }
         public int RVM { get; set; }
+
+        public int DEBUG_MOD { get; set; }
+
+        //order properties
         public int masterOrderID { get; set; }
 
-        public Satelite(int parent, int self, decimal radius, int masterCount,  int satType = 0)
+        public Satelite(int parent, int self, double radius, int masterCount,  int satType = 0)
             : base(parent, self)
         {
             //Sat Type optional default is 0 (unassigned)
@@ -88,39 +95,56 @@ namespace StarSystemGurpsGen
 
             this.masterOrderID = masterCount;
             this.orbitalRadius = radius;
+            this.DEBUG_MOD = 90;
         }
 
-        public Satelite(int parent, int self, decimal radius, String parentDesc, int masterCount, int satType = 0)
+        public Satelite(int parent, int self, double radius, String parentDesc, int masterCount, int satType = 0)
             : base(parent, self)
         {
             //Sat Type optional default is 0 (unassigned)
-            this.sateliteType = satType;
-
-            if (this.sateliteType == Satelite.CONTENT_ASTEROIDBELT)
-                this.descSatType = "Asteroid Belt";
-
-            if (this.sateliteType == Satelite.CONTENT_GASGIANT)
-                this.descSatType = "Gas Giant";
-
-            if (this.sateliteType == Satelite.CONTENT_TERRESTIAL)
-                this.descSatType = "Terrestial";
-
-            if (this.sateliteType == Satelite.CONTENT_MOON)
-                this.descSatType = "Terrestial Moon";
-
-            if (this.sateliteType == Satelite.CONTENT_EMPTY)
-                this.descSatType = "Empty Orbital";
+            this.updateType(satType);
 
             this.orbitalRadius = radius;
             this.masterOrderID = masterCount;
+            this.sateliteSize = Satelite.SIZE_UNSET;
 
             this.parentDesc = parentDesc;
+            this.DEBUG_MOD = 90;
+        }
+
+        //copy constructor
+        public Satelite(Satelite s) : base(s.parentID, s.selfID){
+            this.updateType(s.sateliteType);
+            this.orbitalRadius = s.orbitalRadius;
+            this.masterOrderID = s.masterOrderID;
+            this.parentDesc = s.parentDesc;
+
+            this.isMoon = s.isMoon;
+            this.updateType(s.sateliteType);
+            this.updateSize(s.sateliteSize);
+            this.diameter = s.diameter;
+            this.mass = s.mass;
+            this.density = s.density;
+            this.gravity = s.gravity;
+            this.hydCoverage = s.hydCoverage;
+            this.atmMass = s.atmMass;
+            this.atmPres = s.atmPres;
+            this.RVM = s.RVM;
+            this.DEBUG_MOD = s.DEBUG_MOD;
+
         }
 
         public int getHabitability()
         {
             return 0;
         }
+
+        public void updateOrbitalData(int masterOrbPos, int localOrbPos)
+        {
+            this.masterOrderID = masterOrbPos;
+            this.selfID = localOrbPos;
+        }
+
 
         public void updateType(int flag)
         {
@@ -149,7 +173,14 @@ namespace StarSystemGurpsGen
             if (this.sateliteSize == Satelite.SIZE_TINY) this.descSatSize = "Tiny";
             if (this.sateliteSize == Satelite.SIZE_SMALL) this.descSatSize = "Small";
             if (this.sateliteSize == Satelite.SIZE_STANDARD) this.descSatSize = "Standard";
+            if (this.sateliteSize == Satelite.SIZE_MEDIUM) this.descSatSize = "Medium";
             if (this.sateliteSize == Satelite.SIZE_LARGE) this.descSatSize = "Large";
+        }
+
+        public void updateTypeSize(int typeFlag, int sizeFlag)
+        {
+            this.updateType(typeFlag);
+            this.updateSize(sizeFlag);
         }
 
         public int getAffinity()
@@ -159,13 +190,13 @@ namespace StarSystemGurpsGen
 
         public string getAtmCategory()
         {
-            if (this.atmPres <= 0.01m) return "Trace";
-            if (0.01m < this.atmPres && this.atmPres <= 0.5m) return "Very Thin";
-            if (0.5m < this.atmPres && this.atmPres <= 0.8m) return "Thin";
-            if (0.8m < this.atmPres && this.atmPres <= 1.2m) return "Standard";
-            if (1.2m < this.atmPres && this.atmPres <= 1.5m) return "Dense";
-            if (1.5m < this.atmPres && this.atmPres <= 10m) return "Very Dense";
-            if (this.atmPres > 10m) return "Superdense";
+            if (this.atmPres <= 0.01) return "Trace";
+            if (0.01 < this.atmPres && this.atmPres <= 0.5) return "Very Thin";
+            if (0.5 < this.atmPres && this.atmPres <= 0.8) return "Thin";
+            if (0.8 < this.atmPres && this.atmPres <= 1.2) return "Standard";
+            if (1.2 < this.atmPres && this.atmPres <= 1.5) return "Dense";
+            if (1.5 < this.atmPres && this.atmPres <= 10) return "Very Dense";
+            if (this.atmPres > 10) return "Superdense";
 
             return "Error";
         }
@@ -174,16 +205,12 @@ namespace StarSystemGurpsGen
         public override string ToString()
         {
             String ret;
-            ret = "This is a ";
-
-            if (this.sateliteType == Satelite.CONTENT_GASGIANT) ret = ret + "Gas Giant";
-            if (this.sateliteType == Satelite.CONTENT_MOON) ret = ret + " Moon";
-            if (this.sateliteType == Satelite.CONTENT_TERRESTIAL) ret = ret + " Terrestial Planet";
-            if (this.sateliteType == 0) ret = ret + " UNASSIGNED";
+            ret = "This is a " + this.descSatSize + " (" + this.descSatType + ")";
 
             ret = ret + " orbiting at " + Math.Round(this.orbitalRadius,3) + " AU out, orbiting parent " + this.parentID +" .";
 
             return ret;
         }
+
     }
 }

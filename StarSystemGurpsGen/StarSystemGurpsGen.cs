@@ -16,8 +16,9 @@ namespace StarSystemGurpsGen
         String sysName;
         List <Star> core;
         BindingList<Satelite> cleanPlanets { get; set; }
-        decimal systemAge;
-        decimal maxMass = 2.0m;
+
+        double systemAge;
+        double maxMass = 2.0;
         
         int subCompanionStar1index;
         int subCompanionStar2index;
@@ -48,7 +49,7 @@ namespace StarSystemGurpsGen
             this.sysName = inpSysName.Text;
             int starLimit = Convert.ToInt16(numStars.Text);
             int roll; //used for rolling
-            this.systemAge = Convert.ToDecimal(sysAge.Text);
+            this.systemAge = Convert.ToDouble(sysAge.Text);
 
             for (int i = 0; i < starLimit; i++)
             {
@@ -66,16 +67,16 @@ namespace StarSystemGurpsGen
                 Program.generateAStar(this.core[i], this.velvetBag, this.maxMass, forceGarden.Checked,forceHighStarMass.Checked);
                 if (i == 0) { 
                     this.maxMass = this.core[i].initMass;
-                    if (this.maxMass == 0m) throw new Exception("Max mass is being set to 0 solar masses.");
+                    if (this.maxMass == 0) throw new Exception("Max mass is being set to 0 solar masses.");
                 }
             }
 
             //generating orbital radius
             if (starLimit > 1)
             {
-                decimal minOrbitalDistance = 0.0m;
-                decimal maxOrbitalDistance = 600.0m;
-                decimal tempVal = 0.0m;
+                double minOrbitalDistance = 0.0;
+                double maxOrbitalDistance = 600.0;
+                double tempVal = 0.0;
                 for (int i = 1; i < starLimit; i++)
                 {
                     int modifiers = 0;
@@ -88,22 +89,22 @@ namespace StarSystemGurpsGen
                         if (this.core[i].selfID == 2) modifiers = modifiers + 6;
                         if (forceGarden.Checked && this.core[i].parentID != 1) modifiers = modifiers + 4;
 
-                        if (minOrbitalDistance == 600.0m)
+                        if (minOrbitalDistance == 600.0)
                         {
                             //in this situation, orbital 3 or so can't be safely placed because the range is 0. 
                             // so we autogenerate it.
                             tempVal = this.velvetBag.rollRange(25, 25);
                             this.core[i].orbitalSep = 5;
                             this.core[i - 1].orbitalRadius = this.core[i - 1].orbitalRadius - tempVal;
-                            this.core[i].orbitalRadius = 600m + tempVal;
+                            this.core[i].orbitalRadius = 600 + tempVal;
                             minOrbitalDistance = this.core[i].orbitalRadius;
                         }
                         else
                         {
                             do
                             {
-                                decimal lowerBound = 0.0m;
-                                decimal higherBound = 0.0m;
+                                double lowerBound = 0.0;
+                                double higherBound = 0.0;
                                 //roll the dice
 
                                 roll = this.velvetBag.gurpsRoll(modifiers);
@@ -116,12 +117,12 @@ namespace StarSystemGurpsGen
                                 //generate the orbital radius
                                 do
                                 {
-                                    tempVal = this.velvetBag.six(2) * this.core[i].getSepModifier();
+                                    tempVal = this.velvetBag.rng(2,6) * this.core[i].getSepModifier();
                                 } while (tempVal <= minOrbitalDistance);
 
                                 //if (this.core[i].selfID == 2) tempVal = this.velvetBag.six(1, 7) * this.core[i].getSepModifier(); 
-                                lowerBound = tempVal - .5m * this.core[i].getSepModifier();
-                                higherBound = .5m * this.core[i].getSepModifier() + tempVal;
+                                lowerBound = tempVal - .5 * this.core[i].getSepModifier();
+                                higherBound = .5 * this.core[i].getSepModifier() + tempVal;
 
 
                                 //set for constraints
@@ -157,13 +158,13 @@ namespace StarSystemGurpsGen
                     }
                     else
                     {
-                        minOrbitalDistance = 0m;
+                        minOrbitalDistance = 0;
                         maxOrbitalDistance = this.core[this.core[i].parentID].orbitalRadius;
                         //roll for seperation
                         do
                         {
-                            decimal lowerBound = 0.0m;
-                            decimal higherBound = 0.0m;
+                            double lowerBound = 0.0;
+                            double higherBound = 0.0;
                             //roll the dice
 
                             roll = this.velvetBag.gurpsRoll(-6);
@@ -174,9 +175,9 @@ namespace StarSystemGurpsGen
                             if (roll >= 15) this.core[i].orbitalSep = 5;
 
                             //set the subcompanion orbital
-                            tempVal = this.velvetBag.six(2) * this.core[i].getSepModifier();
-                            lowerBound = tempVal - .5m * this.core[i].getSepModifier();
-                            higherBound = .5m * this.core[i].getSepModifier() + tempVal;
+                            tempVal = this.velvetBag.rng(2,6) * this.core[i].getSepModifier();
+                            lowerBound = tempVal - .5 * this.core[i].getSepModifier();
+                            higherBound = .5 * this.core[i].getSepModifier() + tempVal;
 
                             if (higherBound > maxOrbitalDistance) higherBound = maxOrbitalDistance;
 
@@ -193,21 +194,21 @@ namespace StarSystemGurpsGen
 
                     roll = this.velvetBag.gurpsRoll(modifiers);
                     if (roll <= 3) this.core[i].orbitalEccent = 0;
-                    if (roll == 4) this.core[i].orbitalEccent = .1m;
-                    if (roll == 5) this.core[i].orbitalEccent = .2m;
-                    if (roll == 6) this.core[i].orbitalEccent = .3m;
-                    if (roll == 7 || roll == 8) this.core[i].orbitalEccent = .4m;
-                    if (roll >= 9 && roll <= 11) this.core[i].orbitalEccent = .5m;
-                    if (roll == 12 || roll == 13) this.core[i].orbitalEccent = .6m;
-                    if (roll == 14 || roll == 15) this.core[i].orbitalEccent = .7m;
-                    if (roll == 16) this.core[i].orbitalEccent = .8m;
-                    if (roll == 17) this.core[i].orbitalEccent = .9m;
-                    if (roll >= 18) this.core[i].orbitalEccent = .95m;
+                    if (roll == 4) this.core[i].orbitalEccent = .1;
+                    if (roll == 5) this.core[i].orbitalEccent = .2;
+                    if (roll == 6) this.core[i].orbitalEccent = .3;
+                    if (roll == 7 || roll == 8) this.core[i].orbitalEccent = .4;
+                    if (roll >= 9 && roll <= 11) this.core[i].orbitalEccent = .5;
+                    if (roll == 12 || roll == 13) this.core[i].orbitalEccent = .6;
+                    if (roll == 14 || roll == 15) this.core[i].orbitalEccent = .7;
+                    if (roll == 16) this.core[i].orbitalEccent = .8;
+                    if (roll == 17) this.core[i].orbitalEccent = .9;
+                    if (roll >= 18) this.core[i].orbitalEccent = .95;
 
 
                 }
             }
-            // MessageBox.Show("We have " + starLimit + " stars.");
+            
             //Enable buttons.
             if (starLimit >= 2)
             {
@@ -282,7 +283,7 @@ namespace StarSystemGurpsGen
             }
 
             //enable output!
-            String genStarOutput = ""; // .. wtf.
+            String genStarOutput = ""; 
             for (int i = 0; i < starLimit; i++){
                 genStarOutput += this.core[i] + Environment.NewLine;
                 //adding an second new line
@@ -360,9 +361,9 @@ namespace StarSystemGurpsGen
 
         private void sysAge_TextChanged(object sender, EventArgs e)
         {
-            decimal ourAge;
-            if (Decimal.TryParse(sysAge.Text,out ourAge)){
-                if (ourAge < 0 || ourAge > 13.9m){
+            double ourAge;
+            if (double.TryParse(sysAge.Text,out ourAge)){
+                if (ourAge < 0 || ourAge > 13.9){
                     sysAge.Text = "Invalid";
                     beginStep2.Enabled = false;
              }
@@ -374,10 +375,10 @@ namespace StarSystemGurpsGen
 
         private void sysAge_KeyDown(object sender, KeyEventArgs e)
         {
-            decimal ourAge;
-            if (decimal.TryParse(sysAge.Text, out ourAge)){
+            double ourAge;
+            if (double.TryParse(sysAge.Text, out ourAge)){
             
-                if (ourAge < 0 || ourAge > 13.9m){
+                if (ourAge < 0 || ourAge > 13.9){
                     sysAge.Text = "Invalid";
                     beginStep2.Enabled = false;
                 }
@@ -390,7 +391,7 @@ namespace StarSystemGurpsGen
 
         private void star0Mass_Click(object sender, EventArgs e)
         {
-            alterMass(0, 2.0m);
+            alterMass(0, 2.0);
         }
 
         private void star0Lumin_Click(object sender, EventArgs e){
@@ -462,7 +463,7 @@ namespace StarSystemGurpsGen
             alterTemp(0);
         }
 
-        private void alterMass(int index, decimal maxMass)
+        private void alterMass(int index, double maxMass)
         {
             String res = "";
             do
@@ -470,17 +471,17 @@ namespace StarSystemGurpsGen
                 DialogResult dgResult = Program.InputBox("Star" + (index + 1) + " Mass", "This can be between .1 solar masses and " + maxMass + " solar masses.", ref res);
                 if (dgResult == DialogResult.OK)
                 {
-                    decimal temp;
-                    if (Decimal.TryParse(res, out temp))
+                    double temp;
+                    if (double.TryParse(res, out temp))
                     {
-                        if (temp >= .1m && temp <= 2m)
+                        if (temp >= .1 && temp <= 2)
                         {
                             this.core[index].updateStar(temp, this.velvetBag);
                             generateStellarOutput();
                             return;
                         }
                     }
-                    else MessageBox.Show("Please only enter decimals between .1 solar masses and 2 solar masses.");
+                    else MessageBox.Show("Please only enter doubles between .1 solar masses and 2 solar masses.");
                 }
                 if (dgResult == DialogResult.Cancel) return;
 
@@ -492,9 +493,9 @@ namespace StarSystemGurpsGen
             String res = "";
             do
             {
-                decimal cL = this.core[index].currLumin;
-                decimal lowerLimit = (decimal)Math.Round(this.core[index].currLumin * .9m, 5);
-                decimal higherLimit = (decimal)Math.Round(this.core[index].currLumin * 1.1m, 5);
+                double cL = this.core[index].currLumin;
+                double lowerLimit = Math.Round(this.core[index].currLumin * .9, 5);
+                double higherLimit = Math.Round(this.core[index].currLumin * 1.1, 5);
 
                 String displayPrompt = "This can be within 10% of the current luminosity." + Environment.NewLine;
                 displayPrompt += "Current luminosity is " + Math.Round(cL, 5) + " solar luminosities.";
@@ -502,8 +503,8 @@ namespace StarSystemGurpsGen
                 DialogResult dgResult = Program.InputBox("Star" + (index + 1) + " Luminosity", displayPrompt, ref res);
                 if (dgResult == DialogResult.OK)
                 {
-                    decimal temp;
-                    if (Decimal.TryParse(res, out temp))
+                    double temp;
+                    if (double.TryParse(res, out temp))
                     {
                         if (temp > lowerLimit && temp < higherLimit)
                         {
@@ -513,7 +514,7 @@ namespace StarSystemGurpsGen
 
                         }
                     }
-                    else MessageBox.Show("Please only enter decimals within 10% of current luminosity.");
+                    else MessageBox.Show("Please only enter doubles within 10% of current luminosity.");
                 }
                 if (dgResult == DialogResult.Cancel) return;
 
@@ -526,9 +527,9 @@ namespace StarSystemGurpsGen
             String res = "";
             do
             {
-                decimal cL = this.core[index].effTemp;
-                decimal lowerLimit = (decimal)Math.Round((this.core[index].effTemp - 100), 5);
-                decimal higherLimit = (decimal)Math.Round((this.core[index].effTemp + 100), 5);
+                double cL = this.core[index].effTemp;
+                double lowerLimit = Math.Round((this.core[index].effTemp - 100), 5);
+                double higherLimit = Math.Round((this.core[index].effTemp + 100), 5);
 
                 String displayPrompt = "This can be within 100K of the current temperature." + Environment.NewLine;
                 displayPrompt += "Current temperature is " + Math.Round(cL, 5) + "K";
@@ -536,8 +537,8 @@ namespace StarSystemGurpsGen
                 DialogResult dgResult = Program.InputBox("Star" + (index + 1) + " Effective Temperature", displayPrompt, ref res);
                 if (dgResult == DialogResult.OK)
                 {
-                    decimal temp;
-                    if (Decimal.TryParse(res, out temp))
+                    double temp;
+                    if (double.TryParse(res, out temp))
                     {
                         if (temp > lowerLimit && temp < higherLimit)
                         {
@@ -547,7 +548,7 @@ namespace StarSystemGurpsGen
 
                         }
                     }
-                    else MessageBox.Show("Please only enter decimals within 100K of current luminosity");
+                    else MessageBox.Show("Please only enter doubles within 100K of current luminosity");
                 }
                 if (dgResult == DialogResult.Cancel) return;
 
@@ -560,11 +561,6 @@ namespace StarSystemGurpsGen
             beginStep3.Enabled = false;
             int totalStars = this.core.Count;
             int roll; //roll variable
-
-            //gas giant flags
-            bool conGGOK = false;
-            bool epiGGOK = false;
-            bool eccGGOK = false;
 
             //start disabling buttons.
             star0Lumin.Visible = false;
@@ -598,17 +594,21 @@ namespace StarSystemGurpsGen
 
             int totalOrbCount = 0; //total orbital count
             //first off, master loop. 
-            for (int currStar = 0; currStar < totalStars; currStar++){
+            for (int currStar = 0; currStar < totalStars; currStar++)
+            {
                 Range temp;
                 int currOrb = 0; //current orbital
-               //draw up forbidden zones.
+                //draw up forbidden zones.
                 if (!this.core[currStar].testInitlizationZones()) this.core[currStar].initalizeZonesOfInterest();
-                for (int i = 1; i < totalStars; i++){
-                    if (this.core[i].parentID == currStar){
+                for (int i = 1; i < totalStars; i++)
+                {
+                    if (this.core[i].parentID == currStar)
+                    {
                         temp = new Range(this.core[i].getInnerForbiddenZone(), this.core[i].getOuterForbiddenZone());
                         this.core[currStar].createForbiddenZone(temp, currStar, i);
                     }
-                    if (this.core[i].selfID == currStar){
+                    if (this.core[i].selfID == currStar)
+                    {
                         temp = new Range(this.core[i].getInnerForbiddenZone(), this.core[i].getOuterForbiddenZone());
                         this.core[currStar].createForbiddenZone(temp, this.core[i].parentID, currStar);
                     }
@@ -616,104 +616,15 @@ namespace StarSystemGurpsGen
 
                 this.core[currStar].sortForbidden();
                 this.core[currStar].createCleanZones();
+
                 
-                //now start checking gas giant checks.
-                if (this.core[currStar].checkEpiRange() > 0) epiGGOK = true;
-                if (this.core[currStar].checkEccRange() > 0) eccGGOK = true;
-                if (this.core[currStar].checkConRange() > 0) conGGOK = true;
-
-                //pick the gas giant flag.
-                
-                bool escapeVar = false;
-                do{
-                    roll = this.velvetBag.gurpsRoll();
-                    if (roll < 8) escapeVar = true; //0 is default set.
-
-                    if ((roll >= 8) && (roll <= 12) && (conGGOK)){
-                        this.core[currStar].gasGiantFlag = Star.GASGIANT_CONVENTIONAL;
-                        escapeVar = true;
-                    }
-
-                    if ((roll == 13) && (roll == 14) && (eccGGOK)){
-                        this.core[currStar].gasGiantFlag = Star.GASGIANT_ECCENTRIC;
-                        escapeVar = true;
-                    }
-
-                    if ((roll >= 15) && (roll <= 18) && (epiGGOK)){
-                        this.core[currStar].gasGiantFlag = Star.GASGIANT_EPISTELLAR;
-                        escapeVar = true;
-                    }
-
-                } while (!escapeVar);
-
 
                 //we have our gas giant flag. Now, let's start the fun bits!
-                Satelite placeHolder;
-                decimal currentOrbital = 0m;
-
-                if (this.core[currStar].gasGiantFlag == Star.GASGIANT_CONVENTIONAL){
-                    if (this.core[currStar].checkConRange() < .15m){
-                        //force assign one.
-                        currentOrbital = this.core[currStar].pickInRange(this.core[currStar].getConventionalRange());
-                    }
-                    else{
-                        //roll for it!
-                        do{
-                            roll = this.velvetBag.six(2,-2);
-                            currentOrbital = ((roll * .05m) + 1 ) * this.core[currStar].snowLine();
-                        } while (this.core[currStar].verifyCleanOrbit(currentOrbital));
-                    }
-
-                    //we have our orbital. Now let's assign it to placeholder.
-                    placeHolder = new Satelite(this.core[currStar].orderID, 0, currentOrbital, 0, Satelite.CONTENT_GASGIANT);
-                }
-
-                if (this.core[currStar].gasGiantFlag == Star.GASGIANT_ECCENTRIC){
-                    if (this.core[currStar].checkEccRange() < .15m){
-                        //force assign one.
-                        currentOrbital = this.core[currStar].pickInRange(this.core[currStar].getEccentricRange());
-                    }
-                    else{
-                        //roll for it!
-                        do
-                        {
-                            roll = this.velvetBag.six();
-                            currentOrbital = (roll * .125m) * this.core[currStar].snowLine();
-                        } while (this.core[currStar].verifyCleanOrbit(currentOrbital));
-                    }
-
-                    //we have our orbital. Now let's assign it to placeholder.
-                    placeHolder = new Satelite(this.core[currStar].orderID, 0, currentOrbital, 0, Satelite.CONTENT_GASGIANT);
-                }
-
-                if (this.core[currStar].gasGiantFlag == Star.GASGIANT_EPISTELLAR)
-                {
-                    if (this.core[currStar].checkEccRange() < .15m){
-                        //force assign one.
-                        currentOrbital = this.core[currStar].pickInRange(this.core[currStar].getEpistellarRange());
-                    }
-                    else{
-                        //roll for it!
-                        do{
-                            roll = this.velvetBag.gurpsRoll();
-                            currentOrbital = (roll * .1m) * this.core[currStar].innerRadius();
-                        } while (!(this.core[currStar].verifyForbiddenOrbit(currentOrbital)));
-                    }
-
-                    //we have our orbital. Now let's assign it to placeholder.
-                    placeHolder = new Satelite(this.core[currStar].orderID, 0, currentOrbital, 0, Satelite.CONTENT_GASGIANT);
-                }
-
-                //now we can start generating orbitals.
-              /*  do{
 
 
-                } while (); */
-                
 
 
             }
-
             //allow finalized output now.
             genOutput.Enabled = true;
         }
@@ -865,9 +776,9 @@ namespace StarSystemGurpsGen
         {
             String res = "";
             //get orbital radius
-            decimal ourSep = this.core[index].getSepModifier();
-            decimal lowerLimit = this.core[index].orbitalRadius - (.5m * ourSep);
-            decimal upperLimit = this.core[index].orbitalRadius + (.5m * ourSep);
+            double ourSep = this.core[index].getSepModifier();
+            double lowerLimit = this.core[index].orbitalRadius - (.5 * ourSep);
+            double upperLimit = this.core[index].orbitalRadius + (.5 * ourSep);
             
             do {
             String displayPrompt = "This can be within 50% of the current seperation." + Environment.NewLine;
@@ -876,8 +787,8 @@ namespace StarSystemGurpsGen
                 DialogResult dgResult = Program.InputBox("Star" + (index + 1) + " Effective Temperature", displayPrompt, ref res);
                 if (dgResult == DialogResult.OK)
                 {
-                    decimal temp;
-                    if (Decimal.TryParse(res, out temp))
+                    double temp;
+                    if (double.TryParse(res, out temp))
                     {
                         if (temp > lowerLimit && temp < upperLimit)
                         {
@@ -887,7 +798,7 @@ namespace StarSystemGurpsGen
 
                         }
                     }
-                    else MessageBox.Show("Please only enter decimals within 100K of current luminosity");
+                    else MessageBox.Show("Please only enter doubles within 100K of current luminosity");
                 }
                 if (dgResult == DialogResult.Cancel) return;
 
@@ -911,8 +822,32 @@ namespace StarSystemGurpsGen
             alterOrbRad(this.subCompanionStar2index);
         }
 
-       
-      
+
+        private void setGasGiantSize(Satelite s, int roll)
+        {
+            if (roll <= 10) s.updateSize(Satelite.SIZE_SMALL);
+            if (roll >= 11 && roll <= 16) s.updateSize(Satelite.SIZE_MEDIUM);
+            if (roll >= 17) s.updateSize(Satelite.SIZE_LARGE);
+
+        }
+
+        private void setTypeFromOrbital(Satelite s, int roll)
+        {
+            s.DEBUG_MOD = roll;
+            if (roll <= 3)
+                s.updateType(Satelite.CONTENT_EMPTY);
+            if (roll >= 4 && roll <= 6)
+                s.updateType(Satelite.CONTENT_ASTEROIDBELT);
+            if (roll >= 7 && roll <= 8)
+                s.updateTypeSize(Satelite.CONTENT_TERRESTIAL, Satelite.SIZE_TINY);
+            if (roll >= 9 && roll <= 11)
+                s.updateTypeSize(Satelite.CONTENT_TERRESTIAL, Satelite.SIZE_SMALL);
+            if (roll >= 12 && roll <= 15)
+                s.updateTypeSize(Satelite.CONTENT_TERRESTIAL, Satelite.SIZE_STANDARD);
+            if (roll >= 16)
+                s.updateTypeSize(Satelite.CONTENT_TERRESTIAL, Satelite.SIZE_LARGE);
+
+        }
 
    }
 }

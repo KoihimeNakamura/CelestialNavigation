@@ -22,144 +22,145 @@ namespace StarSystemGurpsGen
 
 
         //properties of the star
-        public decimal mass { get; protected set; }
-        public decimal initMass { get; protected set; }
-        public decimal radius { get; protected set; }
-        public decimal currLumin { get; protected set; }
-        public decimal initLumin { get; protected set; }
-        protected decimal maxLumin { get; set; }
-        public decimal age { get; protected set; } //age of the star. Used to determine the age of the system
-        public decimal effTemp { get; set; }
+        public double mass { get; protected set; }
+        public double initMass { get; protected set; }
+        public double radius { get; protected set; }
+        public double currLumin { get; protected set; }
+        public double initLumin { get; protected set; }
+        protected double maxLumin { get; set; }
+        public double age { get; protected set; } //age of the star. Used to determine the age of the system
+        public double effTemp { get; set; }
         public String specType { get; set; }
         public bool isFlareStar { get; set; }
         public int orbitalSep { get; set; }
-        public decimal mainLimit { get; set; }
-        public decimal subLimit { get; set; }
-        public decimal giantLimit { get; set; }
-        public decimal totalLifeSpan { get; set; }
+        public double mainLimit { get; set; }
+        public double subLimit { get; set; }
+        public double giantLimit { get; set; }
+        public double totalLifeSpan { get; set; }
         public String parentName { get; set; }
         public int gasGiantFlag { get; set; }
 
         public List<Orbital> ourOrbitals { get; set; }
-        public systemZones zonesOfInterest { get; protected set; }
+        public formationHelper zonesOfInterest { get; protected set; }
         public int orderID { get; set; }
+       
 
 
-        public Star(decimal age, int parent, int self) : base(parent, self) {
-            this.age = age;
-            this.orbitalRadius = 0.0m;
-            this.gasGiantFlag = 0; //set to none automatically. We will set it correctly later.
+         public Star(double age, int parent, int self) : base(parent, self) {
+             this.age = age;
+             this.orbitalRadius = 0.0;
+             this.gasGiantFlag = 0; //set to none automatically. We will set it correctly later.
 
 
-            ourOrbitals = new List<Orbital>(); //You'd think I'd remember to do that here.
+             ourOrbitals = new List<Orbital>(); //You'd think I'd remember to do that here.
 
-        }
+         }
 
-        public Star(decimal age, int parent, int self, int order, string baseName)
-            : base(parent, self){
-            this.age = age;
-            this.orbitalRadius = 0.0m;
-            this.gasGiantFlag = Star.GASGIANT_NONE; //set to none automatically. We will set it correctly later.
-            this.orderID = order;
-            this.genGenericName(baseName);
+         public Star(double age, int parent, int self, int order, string baseName)
+             : base(parent, self){
+             this.age = age;
+             this.orbitalRadius = 0.0;
+             this.gasGiantFlag = Star.GASGIANT_NONE; //set to none automatically. We will set it correctly later.
+             this.orderID = order;
+             this.genGenericName(baseName);
 
-            zonesOfInterest = new systemZones(order);
-            ourOrbitals = new List<Orbital>(); //You'd think I'd remember to do that here.
-        }
+             zonesOfInterest = new formationHelper(order);
+             ourOrbitals = new List<Orbital>(); //You'd think I'd remember to do that here.
+         }
 
-        // orbitals functions
-        public void sortOrbitals(){
-            ourOrbitals.Sort((x, y) => x.orbitalRadius.CompareTo(y.orbitalRadius));
-        }
+         // orbitals functions
+         public void sortOrbitals(){
+             ourOrbitals.Sort((x, y) => x.orbitalRadius.CompareTo(y.orbitalRadius));
+         }
 
-        public void addSatelite(Orbital s){
-            this.ourOrbitals.Add(s);
-        }
+         public void addSatelite(Orbital s){
+             this.ourOrbitals.Add(s);
+         }
 
-       //testing function
-        public bool testInitlizationZones()
-        {
-            if (this.zonesOfInterest == null) return false;
-            return true;
-        }
+        //testing function
+         public bool testInitlizationZones()
+         {
+             if (this.zonesOfInterest == null) return false;
+             return true;
+         }
 
-        public void initalizeZonesOfInterest(){
-            zonesOfInterest = new systemZones(orderID);
-        }
+         public void initalizeZonesOfInterest(){
+             zonesOfInterest = new formationHelper(orderID);
+         }
 
-        public void printAllOrbitals()
-        {
-            Console.WriteLine("This star's orbital array contains: ");
-            foreach (Orbital o in ourOrbitals)
-                Console.WriteLine("{0}", o);
-            Console.WriteLine();
+         public void printAllOrbitals()
+         {
+             Console.WriteLine("This star's orbital array contains: ");
+             foreach (Orbital o in ourOrbitals)
+                 Console.WriteLine("{0}", o);
+             Console.WriteLine();
 
-        }
+         }
 
-        public void updateMass(decimal mass){
-            if (mass == 0m) throw new ArgumentException("Argument is 0 masses.");
-            this.mass = mass;
+         public void updateMass(double mass){
+             if (mass == 0) throw new ArgumentException("Argument is 0 masses.");
+             this.mass = mass;
 
-            if (this.determineStatus() != 4)    this.initMass = mass;
+             if (this.determineStatus() != 4)    this.initMass = mass;
            
-        }
+         }
 
-        public void setInitMass(decimal mass)
-        {
-            this.initMass = mass;
-        }
+         public void setInitMass(double mass)
+         {
+             this.initMass = mass;
+         }
 
-        public void purgeSwallowedOrbits(){
-             ourOrbitals.RemoveAll(orbital => orbital.orbitalRadius <= this.getCollapsedSpace());
-             this.sortOrbitals();
+         public void purgeSwallowedOrbits(){
+              ourOrbitals.RemoveAll(orbital => orbital.orbitalRadius <= this.getCollapsedSpace());
+              this.sortOrbitals();
 
-        }
+         }
 
                 
-        //other functions
-        public void addOrder(int orderID)
-        {
-            this.orderID = orderID;
-        }
+         //other functions
+         public void addOrder(int orderID)
+         {
+             this.orderID = orderID;
+         }
 
-        public void genGenericName(String parentName)
-        {
-            base.genGenericName();
-            char[] starNames = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I' };
-            this.name = parentName + "-" + starNames[this.selfID]   ;
-        }
+         public void genGenericName(String parentName)
+         {
+             base.genGenericName();
+             char[] starNames = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I' };
+             this.name = parentName + "-" + starNames[this.selfID]   ;
+         }
 
-        public void setRadius()
-        {
-            //we don't need any input, actually
-            if (this.determineStatus() != 4){
-                this.radius = ((155000m * (decimal)Math.Sqrt((double)this.currLumin)) / (decimal) Math.Pow((double) this.effTemp, 2));
-            }
-            else  this.radius = (.0001118m * (decimal)Math.Pow((double)this.mass, (1 / 3)));
-        }
+         public void setRadius()
+         {
+             //we don't need any input, actually
+             if (this.determineStatus() != 4){
+                 this.radius = ((155000 * Math.Sqrt(this.currLumin)) / Math.Pow(this.effTemp, 2));
+             }
+             else  this.radius = (.0001118 * Math.Pow(this.mass, (1 / 3)));
+         }
 
 
-        public decimal getRadiusAU(){ return this.radius; }
-        public decimal getRadiusKM() { return this.radius * Orbital.AUtoKM;}
+         public double getRadiusAU(){ return this.radius; }
+         public double getRadiusKM() { return this.radius * Orbital.AUtoKM;}
         
-        public String getStatusDesc()
-        {
-            if (this.determineStatus() == 0) return "Main Sequence";
-            if (this.determineStatus() == 1) return "Main Sequence";
-            if (this.determineStatus() == 2) return "Subgiant Branch";
-            if (this.determineStatus() == 3) return "Asymptotic Giant Branch";
-            if (this.determineStatus() == 4) return "White Dwarf";
+         public String getStatusDesc()
+         {
+             if (this.determineStatus() == 0) return "Main Sequence";
+             if (this.determineStatus() == 1) return "Main Sequence";
+             if (this.determineStatus() == 2) return "Subgiant Branch";
+             if (this.determineStatus() == 3) return "Asymptotic Giant Branch";
+             if (this.determineStatus() == 4) return "White Dwarf";
 
-            return "INVALID STATUS";
-        }
+             return "INVALID STATUS";
+         }
 
-        /*
-         * gasGiantArrangement
-         *  0 - None
-         *  1 - Conventional
-         *  2 - Eccentric
-         *  3 - Epistellar
-         */
+         /*
+          * gasGiantArrangement
+          *  0 - None
+          *  1 - Conventional
+          *  2 - Eccentric
+          *  3 - Epistellar
+          */
         public String getSeperationStr()
         {
             switch (this.orbitalSep)
@@ -175,15 +176,15 @@ namespace StarSystemGurpsGen
             }
         }
 
-        public decimal getSepModifier()
+        public double getSepModifier()
         {
             switch (this.orbitalSep)
             {
-                case 1: return .05m;
-                case 2: return .5m;
-                case 3: return 2m;
-                case 4: return 10m;
-                case 5: return 50m;
+                case 1: return .05;
+                case 2: return .5;
+                case 3: return 2;
+                case 4: return 10;
+                case 5: return 50;
             }
 
             return 0;
@@ -192,7 +193,7 @@ namespace StarSystemGurpsGen
         //method that generically sets luminosity
         public void setLumin()
         {
-            decimal tmpDbl;
+            double tmpDbl;
             if (this.determineStatus() == 0)
             {
                 //set min and current = same, due to time.
@@ -252,7 +253,7 @@ namespace StarSystemGurpsGen
          */
         public int determineStatus()
         {
-            if (this.mass >= .1m && this.mass <= .45m) return 0;
+            if (this.mass >= .1 && this.mass <= .45) return 0;
             if (this.age < this.mainLimit) return 1;
             if (this.age < this.mainLimit + this.subLimit) return 2;
             if (this.age < this.mainLimit + this.subLimit + this.giantLimit) return 3;
@@ -260,7 +261,7 @@ namespace StarSystemGurpsGen
             return -1;
         }
         /** This updates luminosity. **/
-        public void updateLumin(decimal lumin){
+        public void updateLumin(double lumin){
             int currStatus = this.determineStatus();
             switch (currStatus){
                 case 0:
@@ -284,10 +285,10 @@ namespace StarSystemGurpsGen
          */
         public void setTemperature()
         {
-            decimal tmpDbl;
+            double tmpDbl;
             //corrected 12 Dec 2012: Missing sign. Not the most accurate, but the table isn't super accurate either.
-            tmpDbl = -2604.2m * xToYPower(this.mass, 6) + 14710m * xToYPower(this.mass, 5) - 29246m * xToYPower(this.mass, 4);
-            tmpDbl += 22255m * xToYPower(this.mass, 3) - 2083m * xToYPower(this.mass, 2) - 449.86m * this.mass + 3214.2m;
+            tmpDbl = -2604.2 * Math.Pow(this.mass, 6) + 14710 * Math.Pow(this.mass, 5) - 29246 * Math.Pow(this.mass, 4);
+            tmpDbl += 22255 * Math.Pow(this.mass, 3) - 2083 * Math.Pow(this.mass, 2) - 449.86 * this.mass + 3214.2;
             tmpDbl = Math.Round(tmpDbl, 2);
             this.effTemp = tmpDbl;
         }
@@ -297,13 +298,13 @@ namespace StarSystemGurpsGen
          * @return Returns the maximum luminosity.
          */
 
-        private decimal getMaxLumin()
+        private double getMaxLumin()
         {
-            decimal tmpDbl;
+            double tmpDbl;
             //this will determine the maximum luminosity for a star
-            if (this.mass < .45m || this.mass > 2.0m) return -1m;
-            tmpDbl = (4.989914231m * xToYPower(this.mass, 4)) - (17.79087942m * xToYPower(this.mass, 3)) + (28.85126179m * xToYPower(this.mass, 2));
-            tmpDbl = tmpDbl - (18.49923946m * this.mass) + 4.052052039m;
+            if (this.mass < .45 || this.mass > 2.0) return -1;
+            tmpDbl = (4.989914231 * Math.Pow(this.mass, 4)) - (17.79087942 * Math.Pow(this.mass, 3)) + (28.85126179 * Math.Pow(this.mass, 2));
+            tmpDbl = tmpDbl - (18.49923946 * this.mass) + 4.052052039;
             tmpDbl = Math.Round(tmpDbl, 4);
             return tmpDbl;
         }
@@ -314,61 +315,23 @@ namespace StarSystemGurpsGen
          */
 
         //temp makign it public.
-        private decimal getMinLumin()
+        private double getMinLumin()
         {
 
-            //init this table. I think I'm goign to cry.
-            decimal[][] minLuminTable = new decimal[34][];
-            minLuminTable[0] = new decimal[2]{.1m,.0012m};
-            minLuminTable[1] = new decimal[2]{.15m,.0036m};
-            minLuminTable[2] = new decimal[2] { .2m, .0079m };
-            minLuminTable[3] = new decimal[2] { .25m, .015m };
-            minLuminTable[4] = new decimal[2] { .3m, .024m };
-            minLuminTable[5] = new decimal[2] { .35m, .037m };
-            minLuminTable[6] = new decimal[2] { .4m, .054m };
-            minLuminTable[7] = new decimal[2] { .45m, .07m };
-            minLuminTable[8] = new decimal[2] { .5m, .09m };
-            minLuminTable[9] = new decimal[2] { .55m, .11m };
-            minLuminTable[10] = new decimal[2] { .6m, .13m };
-            minLuminTable[11] = new decimal[2] { .65m, .15m };
-            minLuminTable[12] = new decimal[2] { .7m, .12m };
-            minLuminTable[13] = new decimal[2] { .75m, .23m };
-            minLuminTable[14] = new decimal[2] { .8m, .28m };
-            minLuminTable[15] = new decimal[2] { .85m, .36m };
-            minLuminTable[16] = new decimal[2] { .9m, .45m };
-            minLuminTable[17] = new decimal[2] { .95m, .56m };
-            minLuminTable[18] = new decimal[2] { 1m, .68m };
-            minLuminTable[19] = new decimal[2] { 1.05m, .87m };
-            minLuminTable[20] = new decimal[2] { 1.1m, 1.1m };
-            minLuminTable[21] = new decimal[2] { 1.15m, 1.4m };
-            minLuminTable[22] = new decimal[2] { 1.2m, 1.7m };
-            minLuminTable[23] = new decimal[2] { 1.25m, 2.1m };
-            minLuminTable[24] = new decimal[2] { 1.3m, 2.5m };
-            minLuminTable[25] = new decimal[2] { 1.35m, 3.1m };
-            minLuminTable[26] = new decimal[2] { 1.4m, 3.7m };
-            minLuminTable[27] = new decimal[2] { 1.45m, 4.3m };
-            minLuminTable[28] = new decimal[2] { 1.5m, 5.1m };
-            minLuminTable[29] = new decimal[2] { 1.6m, 6.7m };
-            minLuminTable[30] = new decimal[2] { 1.7m, 8.6m };
-            minLuminTable[31] = new decimal[2] { 1.8m, 11m };
-            minLuminTable[32] = new decimal[2] { 1.9m, 13m };
-            minLuminTable[33] = new decimal[2] { 2m, 16m };
-            
-            
-
-            decimal tmpDbl = 0.0m, minMass, massRange, minLumin, luminRange;
-            if (this.mass >= minLuminTable[33][0]) return 16m;
-            for (int i = 0; i < minLuminTable.Length; i++){
-                if (this.mass >= minLuminTable[i][0] && this.mass < minLuminTable[i + 1][0]){
+       
+            double tmpDbl = 0.0, minMass, massRange, minLumin, luminRange;
+            if (this.mass >= Star.minLuminTable[33][0]) return 16;
+            for (int i = 0; i < Star.minLuminTable.Length; i++){
+                if (this.mass >= Star.minLuminTable[i][0] && this.mass < Star.minLuminTable[i + 1][0]){
                     //get the minimum mass and mass Range
-                    minMass = minLuminTable[i][0];
+                    minMass = Star.minLuminTable[i][0];
                     massRange = this.mass - minMass;
 
                     //get the minimum lumin and range
-                    minLumin = minLuminTable[i][1];
-                    luminRange = minLuminTable[i + 1][1] - minLuminTable[i][1];
+                    minLumin = Star.minLuminTable[i][1];
+                    luminRange = Star.minLuminTable[i + 1][1] - Star.minLuminTable[i][1];
 
-                    return (minLumin + (massRange / ((minLuminTable[i + 1][0] - minMass)) * luminRange ));
+                    return (minLumin + (massRange / ((Star.minLuminTable[i + 1][0] - minMass)) * luminRange));
 
                 }
             }
@@ -380,11 +343,11 @@ namespace StarSystemGurpsGen
          */
         public void setMainLimit()
         {
-            decimal tmpDbl;
+            double tmpDbl;
             //determines the main sequence limit
-            if (this.mass < .45m) this.mainLimit = 1300.0m; //set for an extremely high number.
-            tmpDbl = (39.5535698038m * xToYPower(this.mass, 4)) - (247.56796104217m * xToYPower(this.mass, 3));
-            tmpDbl += (580.40142164746m * xToYPower(this.mass, 2)) - (610.07037160674m * this.mass) + 247.75169730288m;
+            if (this.mass < .45) this.mainLimit = 1300.0; //set for an extremely high number.
+            tmpDbl = (39.5535698038 * Math.Pow(this.mass, 4)) - (247.56796104217 * Math.Pow(this.mass, 3));
+            tmpDbl += (580.40142164746 * Math.Pow(this.mass, 2)) - (610.07037160674 * this.mass) + 247.75169730288;
             tmpDbl = Math.Round(tmpDbl, 3);
             this.mainLimit = tmpDbl;
         }
@@ -394,10 +357,10 @@ namespace StarSystemGurpsGen
          */
         public void setSubLimit()
         {
-            decimal tmpDbl;
+            double tmpDbl;
             //determines the sub span limit
-            tmpDbl = (1.9998950042437m * xToYPower(this.mass, 4)) - (14.088628035713m * xToYPower(this.mass, 3)) 
-                     + (37.565459826918m * xToYPower(this.mass, 2)) - (45.463378074726m * this.mass) + 21.565798170783m;
+            tmpDbl = (1.9998950042437 * Math.Pow(this.mass, 4)) - (14.088628035713 * Math.Pow(this.mass, 3)) 
+                     + (37.565459826918 * Math.Pow(this.mass, 2)) - (45.463378074726 * this.mass) + 21.565798170783;
             tmpDbl = Math.Round(tmpDbl, 3);
             this.subLimit = tmpDbl;
         }
@@ -407,10 +370,10 @@ namespace StarSystemGurpsGen
          */
         public void setGiantLimit()
         {
-            decimal tmpDbl;
+            double tmpDbl;
             //determines the giant limit
-            tmpDbl = (4.533m * xToYPower(this.mass, 6)) - (42.472m * xToYPower(this.mass, 5)) + (164.88m * xToYPower(this.mass, 4)) -
-                (340.31m * xToYPower(this.mass, 3)) + (395.58m * xToYPower(this.mass, 2)) - (247.54m * this.mass) + 66.283m;
+            tmpDbl = (4.533 * Math.Pow(this.mass, 6)) - (42.472 * Math.Pow(this.mass, 5)) + (164.88 * Math.Pow(this.mass, 4)) -
+                (340.31 * Math.Pow(this.mass, 3)) + (395.58 * Math.Pow(this.mass, 2)) - (247.54 * this.mass) + 66.283;
 
             tmpDbl = Math.Round(tmpDbl, 3);
             this.giantLimit = tmpDbl;
@@ -422,12 +385,12 @@ namespace StarSystemGurpsGen
          */
         public String getStarPopType()
         {
-            if (age == 0m) return "Extreme Population I";
-            if (age < 2m) return "Young Population I";
-            if (age < 5m) return "Intermediate Population I";
-            if (age < 8m) return "Old Population I";
-            if (age < 10.75m) return "Intermediate Population I";
-            if (age < 13.7m) return "Extreme Population II";
+            if (age == 0) return "Extreme Population I";
+            if (age < 2) return "Young Population I";
+            if (age < 5) return "Intermediate Population I";
+            if (age < 8) return "Old Population I";
+            if (age < 10.75) return "Intermediate Population I";
+            if (age < 13.7) return "Extreme Population II";
             return "Invalid";
         }
 
@@ -474,7 +437,7 @@ namespace StarSystemGurpsGen
 
             desc += this.specType + " " + lumType + " star, " + this.mass + " solar masses, ";
             //+ Math.Round(this.currLumin, 4) + " solar luminosity";
-            if (this.currLumin < 0.0001m) desc = desc + "negliable solar luminosity";
+            if (this.currLumin < 0.0001) desc = desc + "negliable solar luminosity";
             else desc = desc + Math.Round(this.currLumin, 4) + " solar luminosity";
             desc += Environment.NewLine + spacing + Math.Round(this.effTemp, 2) + "K effective temperature, " + Math.Round(this.radius, 4) + " AU radius";
             desc += Environment.NewLine + spacing + this.getStarPopType() + " (" + this.age + " Gyr), total lifespan " + Math.Round(this.totalLifeSpan, 2) + " Gyr";
@@ -520,15 +483,18 @@ namespace StarSystemGurpsGen
          * 
          * @return the inner limit that planets can form around the star
          */
-        public decimal innerRadius()
+        public double innerRadius()
         {
             
-                if (.1m * this.initMass > .01m * (decimal)Math.Sqrt((double)this.currLumin)) return .1m * this.initMass;
-                else return Math.Round((.01m * (decimal)Math.Sqrt((double)this.currLumin)),3);
+              double lumFactor = Math.Sqrt(this.currLumin);
+                if (.1 * this.initMass > .01 * lumFactor)
+                        return .1 * this.initMass;
+                else
+                       return Math.Round(.01 * lumFactor, 3);
          }
 
-        public decimal getCollapsedSpace(){
-             return .01m* (decimal)Math.Sqrt((double)this.maxLumin);
+        public double getCollapsedSpace(){
+             return .01* Math.Sqrt(this.maxLumin);
         }
 
 
@@ -536,21 +502,21 @@ namespace StarSystemGurpsGen
          * 
          * @return The outer limit of the zone where planets can form around the star
          */
-        public decimal outerRadius()
+        public double outerRadius()
         {
             //Console.WriteLine("OUTER RADIUS INVOKED");
             //Console.WriteLine("Init Mass: {0}, outerRadius is {1}", this.initMass, 40m * this.initMass);
             //Console.ReadLine();
-            return Math.Round((40m * this.initMass),3);
+            return Math.Round((40 * this.initMass),3);
         }
 
         /** The snowLine, or the inner limit of conventional gas giant orbits.
          * 
          * @return the snowLine.
          */
-        public decimal snowLine()
+        public double snowLine()
         {
-            return (4.85m * (decimal)Math.Sqrt((double)this.initLumin));
+            return (4.85 * Math.Sqrt(this.initLumin));
         }
 
         /** The inner forbidden zone between a companion star and it's primary.<br>
@@ -558,9 +524,9 @@ namespace StarSystemGurpsGen
          * 
          * @return the inner forbidden zone limit.
          */
-        public decimal getInnerForbiddenZone()
+        public double getInnerForbiddenZone()
         {
-            return Math.Round((this.getPeriapsis() / 3m),3);
+            return Math.Round((this.getPeriapsis() / 3),3);
         }
 
         /** The outer limit of the forbidden zone between a companion star and it's primary<br>
@@ -568,18 +534,18 @@ namespace StarSystemGurpsGen
          * 
          * @return the outer forbidden zone limit
          */
-        public decimal getOuterForbiddenZone()
+        public double getOuterForbiddenZone()
         {
-            return Math.Round(3m * this.getApapsis(),3);
+            return Math.Round(3 * this.getApapsis(),3);
         }
 
-        public void updateStar(decimal mass, Dice ourDice)
+        public void updateStar(double mass, Dice ourDice)
         {
             int NUMPLACESLUM = 5; //This saves me time.
 
             this.updateMass(mass);
             //CASE 1: MASS is between .1 and .45 solar masses
-            if (mass >= .1m && mass < .45m)
+            if (mass >= .1 && mass < .45)
             {
                 //see if it's a flare star.
                 if (ourDice.gurpsRoll() >= 12) this.isFlareStar = true;
@@ -595,14 +561,14 @@ namespace StarSystemGurpsGen
 
 
                 //we have no clue what the actual lifespan is.
-                this.mainLimit = 1300.0m; // also used to tell the object this should be status 0.
+                this.mainLimit = 1300.0; // also used to tell the object this should be status 0.
                 this.totalLifeSpanUp(); //update the list
             }
 
-            if (mass >= .45m && mass < .95m)
+            if (mass >= .45 && mass < .95)
             {
                 //see if it's a flare star.
-                if (mass <= .525m)
+                if (mass <= .525)
                 {
                     if (ourDice.gurpsRoll() >= 12) this.isFlareStar = true;
                 }
@@ -622,7 +588,7 @@ namespace StarSystemGurpsGen
                 this.totalLifeSpanUp();
             }
 
-            if (mass >= .95m && mass <= 2m)
+            if (mass >= .95 && mass <= 2)
             {
                 //Now we can generate with all fields
 
@@ -665,7 +631,7 @@ namespace StarSystemGurpsGen
                     this.updateLumin(Math.Round(this.currLumin, NUMPLACESLUM));
 
                     //set temperature and get spectral type
-                    this.effTemp = 3000 + (ourDice.six(2, -2) * 200);
+                    this.effTemp = 3000 + (ourDice.rng(2,6, -2) * 200);
                     this.specType = Star.getStellarTypeFromTemp(this.effTemp);
                 }
 
@@ -678,14 +644,14 @@ namespace StarSystemGurpsGen
                     this.setLumin(); //autogenerate luminosity
 
                     //reset to accommodate for the fact it's a dead star now. :/
-                    this.updateMass(.9m + (ourDice.six(2, -2) * .05m));
-                    this.updateLumin(.00003m * ourDice.six());
+                    this.updateMass(.9 + (ourDice.rng(2, 6, -2) * .05));
+                    this.updateLumin(.00003 * ourDice.rng(6));
 
                     //not that accurate, not that wrong though..
-                    decimal whiteDwarfSpan = this.age - this.mainLimit;
-                    if (whiteDwarfSpan < 1.0m) this.effTemp = 10000m;
-                    if (1.0m <= whiteDwarfSpan && whiteDwarfSpan < 2.5m) this.effTemp = 5000m;
-                    if (whiteDwarfSpan >= 2.5m) this.effTemp = 3796m;
+                    double whiteDwarfSpan = this.age - this.mainLimit;
+                    if (whiteDwarfSpan < 1.0) this.effTemp = 10000;
+                    if (1.0 <= whiteDwarfSpan && whiteDwarfSpan < 2.5) this.effTemp = 5000;
+                    if (whiteDwarfSpan >= 2.5) this.effTemp = 3796;
 
                 }
 
@@ -696,7 +662,7 @@ namespace StarSystemGurpsGen
 
         }
 
-        public void updateTemp(decimal effTemp){
+        public void updateTemp(double effTemp){
             if (this.determineStatus() == 2 || this.determineStatus() == 3){
                 this.effTemp = effTemp;
                 this.specType = Star.getStellarTypeFromTemp(this.effTemp);
@@ -706,15 +672,15 @@ namespace StarSystemGurpsGen
 
        //return ranges.
         public Range getEpistellarRange(){
-            return new Range(.1m * this.innerRadius(), 1.8m * this.innerRadius());
+            return new Range(.1 * this.innerRadius(), 1.8 * this.innerRadius());
         }
 
         public Range getEccentricRange(){
-            return new Range(.125m * this.snowLine(), .75m * this.snowLine());
+            return new Range(.125 * this.snowLine(), .75 * this.snowLine());
         }
 
         public Range getConventionalRange(){
-            return new Range(this.snowLine(), 1.5m * this.snowLine());
+            return new Range(this.snowLine(), 1.5 * this.snowLine());
         }
 
         public Range fullCreationRange()
@@ -740,47 +706,97 @@ namespace StarSystemGurpsGen
             this.zonesOfInterest.sortCleanZones();
         }
 
-       public decimal verifyRange(Range incoming){
+       public double verifyRange(Range incoming){
            return this.zonesOfInterest.verifyRange(incoming);
         }
 
-       public decimal pickInRange(Range incoming){
+       public double pickInRange(Range incoming){
            return this.zonesOfInterest.pickInRange(incoming);
        }
 
-       public bool verifyCleanOrbit(decimal incoming){
+       public bool verifyCleanOrbit(double incoming){
            return this.zonesOfInterest.isWithinCleanZone(incoming);
        }
 
-       public bool verifyForbiddenOrbit(decimal incoming){
+       public bool verifyForbiddenOrbit(double incoming){
            return this.zonesOfInterest.isWithinForbiddenZone(incoming);
        }
 
-       public decimal getNextCleanOrbit(decimal orbit){
+       public double getNextCleanOrbit(double orbit){
            return this.zonesOfInterest.getNextCleanOrbit(orbit);
        }
 
-       public decimal getMinCleanOrbit(){
+       public double getMinCleanOrbit(){
            return this.zonesOfInterest.getMinimalCleanZone();
        }
 
-       public decimal getMaxCleanOrbit(){
+       public double getMaxCleanOrbit(){
            return this.zonesOfInterest.getMaximalCleanZone();
        }
 
+       public double getRangeWidth(double orbit)
+       {
+           return this.zonesOfInterest.getRangeWidth(orbit);
+       }
+       
+       public int getOwnership(double orbital)
+       {
+           return this.zonesOfInterest.getOwnership(orbital);
+       }
+
+       public int getAdjacencyMod(double orbital)
+       {
+           return this.zonesOfInterest.getAdjacencyMod(orbital);
+       }
+
+       //simplification range
+       public double pickInCurrentRange(double orbit, double minLimit)
+       {
+           double retValue;
+
+           if (this.zonesOfInterest.getRangeWidth(orbit) < minLimit)
+           {
+               do
+               {
+                   retValue = this.zonesOfInterest.pickInRange(this.zonesOfInterest.getRange(orbit));
+               } while (retValue == orbit);
+           }
+           else
+           {
+               do
+               {
+                   retValue = this.zonesOfInterest.pickInRange(this.zonesOfInterest.getRange(orbit));
+               } while (retValue < orbit + minLimit);
+           }
+
+
+           return retValue;  
+           //return this.zonesOfInterest.pickInRange(this.zonesOfInterest.getRange(orbit));
+       }
+
        //gas giant checks (all passthrough, but simplify  the call.
-        public decimal checkEpiRange(){
+        public double checkEpiRange(){
             return this.zonesOfInterest.verifyRange(this.getEpistellarRange());
         }
 
-        public decimal checkEccRange(){
+        public double checkEccRange(){
             return this.zonesOfInterest.verifyRange(this.getEccentricRange());
         }
 
-        public decimal checkConRange(){
+        public double checkConRange(){
             return this.zonesOfInterest.verifyRange(this.getConventionalRange());
         }
 
+       //get distance to maximum and minimum:
+        public double getRatioToMax(double src)
+        {
+            return Program.GetRatio(src, this.zonesOfInterest.getMaximalCleanZone());
+        }
+
+        public double getRatioFromMin(double src)
+        {
+            return Program.GetRatio(this.zonesOfInterest.getMinimalCleanZone(), src);
+        }
 
     }
 

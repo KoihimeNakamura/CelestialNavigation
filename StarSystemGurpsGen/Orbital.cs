@@ -14,10 +14,10 @@ namespace StarSystemGurpsGen
         //orbital details
         public int parentID { get; set; } // ID of the body anything in this orbital orbits.
         public int selfID { get; set; } //used to track what THIS is. (also, the orbit order)
-        public decimal orbitalRadius { get; set; } //the radius of the orbit around the parent body
-        public decimal orbitalEccent { get; set; } //the eccentricity of the orbit
-        public decimal blackbodyTemp { get; set; } // the blackbody temp of this orbit
-        public decimal orbitalPeriod { get; set; } // time it takes to revolve around a parent object
+        public double orbitalRadius { get; set; } //the radius of the orbit around the parent body
+        public double orbitalEccent { get; set; } //the eccentricity of the orbit
+        public double blackbodyTemp { get; set; } // the blackbody temp of this orbit
+        public double orbitalPeriod { get; set; } // time it takes to revolve around a parent object
         public String name { get; set; }
 
         public Orbital(){
@@ -30,18 +30,18 @@ namespace StarSystemGurpsGen
             this.selfID = self;
         }
 
-        public Orbital(int parent, int self, decimal radius){
+        public Orbital(int parent, int self, double radius){
             this.orbitalRadius = radius;
             this.selfID = self;
             this.parentID = parent;
 
         }
 
-        public decimal getPeriapsis(){
+        public double getPeriapsis(){
             return ((1 - this.orbitalEccent) * this.orbitalRadius);
         }
 
-        public decimal getApapsis(){
+        public double getApapsis(){
             return ((1 + this.orbitalEccent) * this.orbitalRadius);
         }
 
@@ -51,11 +51,11 @@ namespace StarSystemGurpsGen
             return myStr;
         }
 
-        public decimal xToYPower(decimal x, decimal y)
+        public double xToYPower(double x, double y)
         {
             double tmp;
             tmp = Math.Pow((double)x, (double)y);
-            return (decimal)tmp;
+            return (double)tmp;
         }
 
         public virtual void genGenericName(){

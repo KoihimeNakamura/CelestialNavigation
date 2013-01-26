@@ -14,80 +14,47 @@ namespace StarSystemGurpsGen
             public Dice(){
              }
 
-            public int six()
-            {
-                return (int)(6 * dice.NextDoublePositive() + 1);
-            }
-
-            public int six(int num)
-            {
-                int total = 0;
-                for (int i = 0; i < num; i++)
-                {
-                    total = total + this.six();
-                }
-
-                return total;
-            }
-
-
-            public int six(int num, int mod)
-            {
-                int total = 0;
-                for (int i = 0; i < num; i++)
-                {
-                    total = total + (this.six() + mod);
-                }
-
-                return total;
-            }
-
-            public int probablity(int probSize = 100){
+             public int probablity(int probSize = 100){
                 return (int)(probSize * dice.NextDoublePositive() + 1);
             }
 
             public int gurpsRoll()
             {
-                return this.six(3);
+                return this.rng(3,6);
             }
 
- 
             public int gurpsRoll(int mod)
             {
-                return this.six(3, mod);
+                return this.rng(3, 6, mod);
             }
 
-            public int anySize(int size)
+            public int rng(int size)
             {
                 return (int)(size * dice.NextDoublePositive() + 1);
             }
 
-            public int anySize(int num, int size)
+            public int rng(int num, int size)
             {
                 int total = 0;
                 for (int i = 0; i < num; i++)
                 {
-                    total = total + this.anySize(size);
+                    total = total + this.rng(size);
                 }
 
                 return total;
             }
 
-         
-            public int anySize(int num, int size, int mod)
+            public int rng(int num, int size, int mod)
             {
-                int total = 0;
-                for (int i = 0; i < num; i++)
-                {
-                    total = total + (this.anySize(size) + mod);
-                }
-
+                int total;
+                total = this.rng(3, 6) + mod;
                 return total;
             }
 
-            public decimal rollRange(decimal startVal, decimal range){
 
-                return ((decimal)dice.NextDoublePositive()) * range + startVal;
+            public double rollRange(double startVal, double range){
+
+                return (dice.NextDoublePositive()) * range + startVal;
             }
 
         }
