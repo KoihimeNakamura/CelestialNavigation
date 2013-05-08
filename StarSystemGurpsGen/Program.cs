@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Text.RegularExpressions; 
 
 namespace StarSystemGurpsGen
 {
@@ -12,6 +13,8 @@ namespace StarSystemGurpsGen
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+
+
         [STAThread]
         static void Main()
         {
@@ -20,49 +23,9 @@ namespace StarSystemGurpsGen
             Application.Run(new StarSystemGurpsGen());
         }
 
-        public static void generateAStar(Star tempStar, Dice ourDice, double maxMass, bool forceGarden, bool forceHighMass)
+        public static double GetRatio(double x, double dist)
         {
-
-            double mass = 0.0;
-
-            if (maxMass != 0.1)
-            {
-                do
-                {
-                    int rollA = ourDice.gurpsRoll();
-                    int rollB = ourDice.gurpsRoll();
-
-                    if (forceGarden)
-                    {
-                        rollA = ourDice.rng(6);
-                        if (rollA == 1) rollA = 5;
-                        if (rollA == 2) rollA = 6;
-                        if (rollA == 3 || rollA == 4) rollA = 7;
-                        if (rollA == 5 || rollA == 6) rollA = 8;
-                    }
-
-                    if (forceHighMass){
-                        rollA = ourDice.rng(6) + 2;
-                    }
-
-                    tempStar.updateMass(Star.stellarMass(rollA, rollB)); //set the mass
-                    mass = tempStar.mass;
-                    tempStar.setInitMass(mass);
-                    mass = tempStar.mass;
-                } while (mass > maxMass);
-            }
-            if (maxMass == 0.1){
-                tempStar.updateMass(.1);
-                mass = .1;
-            }
-
-            tempStar.updateStar(mass, ourDice);
-
-        }
-
-        public static double GetRatio(double x, double dest)
-        {
-            return (dest) / (x);
+            return x / dist;
         }
 
         public static DialogResult InputBox(string title, string promptText, ref string value)
@@ -106,5 +69,7 @@ namespace StarSystemGurpsGen
             value = textBox.Text;
             return dialogResult;
         }
+
+
     }
 }

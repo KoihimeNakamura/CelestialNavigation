@@ -47,25 +47,40 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="cleanZone.cs" />
-    <Compile Include="Dice.cs" />
-    <Compile Include="forbiddenZone.cs" />
-    <Compile Include="formationHelper.cs" />
-    <Compile Include="MersenneTwister.cs" />
-    <Compile Include="Orbital.cs" />
+    <Compile Include="libStarGen.cs" />
+    <Compile Include="OptionCont.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Range.cs" />
-    <Compile Include="Satelite.cs" />
-    <Compile Include="SateliteContents.cs" />
-    <Compile Include="Star.cs" />
-    <Compile Include="StarFormulas.cs" />
+    <Compile Include="Range Objects\cleanZone.cs" />
+    <Compile Include="Range Objects\forbiddenZone.cs" />
+    <Compile Include="Range Objects\FormationSegment.cs" />
+    <Compile Include="Range Objects\Range.cs" />
+    <Compile Include="StarOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StarOptions.Designer.cs">
+      <DependentUpon>StarOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="StarSystem.cs" />
     <Compile Include="StarSystemGurpsGen.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="StarSystemGurpsGen.Designer.cs">
       <DependentUpon>StarSystemGurpsGen.cs</DependentUpon>
     </Compile>
+    <Compile Include="Stellar Objects\Moonlet.cs" />
+    <Compile Include="Stellar Objects\Orbital.cs" />
+    <Compile Include="Stellar Objects\Satelite.cs" />
+    <Compile Include="Stellar Objects\Star.cs" />
+    <Compile Include="Stellar Objects\StarFlags.cs" />
+    <Compile Include="Stellar Objects\StarFormulas.cs" />
+    <Compile Include="Stellar Objects\StarSatellite.cs" />
+    <Compile Include="Utility Classes\Dice.cs" />
+    <Compile Include="Utility Classes\formationHelper.cs" />
+    <Compile Include="Utility Classes\FormationZone.cs" />
+    <Compile Include="Utility Classes\MersenneTwister.cs" />
+    <Compile Include="Utility Classes\StarAgeLine.cs" />
+    <Compile Include="Utility Classes\TimeLine.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -75,6 +90,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="StarOptions.resx">
+      <DependentUpon>StarOptions.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="StarSystemGurpsGen.resx">
       <DependentUpon>StarSystemGurpsGen.cs</DependentUpon>
     </EmbeddedResource>
