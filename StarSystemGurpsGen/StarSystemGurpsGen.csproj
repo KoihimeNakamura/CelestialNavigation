@@ -55,6 +55,12 @@
     <Compile Include="Range Objects\forbiddenZone.cs" />
     <Compile Include="Range Objects\FormationSegment.cs" />
     <Compile Include="Range Objects\Range.cs" />
+    <Compile Include="StarAlter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StarAlter.Designer.cs">
+      <DependentUpon>StarAlter.cs</DependentUpon>
+    </Compile>
     <Compile Include="StarOptions.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,6 +96,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="StarAlter.resx">
+      <DependentUpon>StarAlter.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="StarOptions.resx">
       <DependentUpon>StarOptions.cs</DependentUpon>
     </EmbeddedResource>

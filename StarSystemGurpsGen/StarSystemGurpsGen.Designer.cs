@@ -44,11 +44,8 @@
             this.btnGenRandom = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.lblStar1 = new System.Windows.Forms.Label();
-            this.lblStar2 = new System.Windows.Forms.Label();
-            this.lblStar3 = new System.Windows.Forms.Label();
-            this.lblSubStar2 = new System.Windows.Forms.Label();
-            this.lblSubStar3 = new System.Windows.Forms.Label();
             this.lblSysAge = new System.Windows.Forms.Label();
+            this.btnAlterStar = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,13 +73,13 @@
             // outputToFileToolStripMenuItem
             // 
             this.outputToFileToolStripMenuItem.Name = "outputToFileToolStripMenuItem";
-            this.outputToFileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.outputToFileToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.outputToFileToolStripMenuItem.Text = "Output to File";
             // 
             // quitToolStripMenuItem
             // 
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-            this.quitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.quitToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.quitToolStripMenuItem.Text = "Quit";
             this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
             // 
@@ -160,49 +157,12 @@
             // 
             // lblStar1
             // 
-            this.lblStar1.Location = new System.Drawing.Point(68, 62);
+            this.lblStar1.Location = new System.Drawing.Point(68, 64);
             this.lblStar1.Name = "lblStar1";
-            this.lblStar1.Size = new System.Drawing.Size(401, 62);
+            this.lblStar1.Size = new System.Drawing.Size(401, 47);
             this.lblStar1.TabIndex = 6;
             this.lblStar1.Text = "Star 1:";
             this.lblStar1.Visible = false;
-            // 
-            // lblStar2
-            // 
-            this.lblStar2.Location = new System.Drawing.Point(68, 124);
-            this.lblStar2.Name = "lblStar2";
-            this.lblStar2.Size = new System.Drawing.Size(401, 76);
-            this.lblStar2.TabIndex = 7;
-            this.lblStar2.Text = "Star 2:";
-            this.lblStar2.Visible = false;
-            // 
-            // lblStar3
-            // 
-            this.lblStar3.Location = new System.Drawing.Point(68, 200);
-            this.lblStar3.Name = "lblStar3";
-            this.lblStar3.Size = new System.Drawing.Size(401, 74);
-            this.lblStar3.TabIndex = 8;
-            this.lblStar3.Text = "Star 3:";
-            this.lblStar3.Visible = false;
-            this.lblStar3.Click += new System.EventHandler(this.lblStar3_Click);
-            // 
-            // lblSubStar2
-            // 
-            this.lblSubStar2.Location = new System.Drawing.Point(68, 274);
-            this.lblSubStar2.Name = "lblSubStar2";
-            this.lblSubStar2.Size = new System.Drawing.Size(401, 74);
-            this.lblSubStar2.TabIndex = 9;
-            this.lblSubStar2.Text = "Subcompanion of Star 2:";
-            this.lblSubStar2.Visible = false;
-            // 
-            // lblSubStar3
-            // 
-            this.lblSubStar3.Location = new System.Drawing.Point(68, 348);
-            this.lblSubStar3.Name = "lblSubStar3";
-            this.lblSubStar3.Size = new System.Drawing.Size(401, 79);
-            this.lblSubStar3.TabIndex = 10;
-            this.lblSubStar3.Text = "Subcompanion of Star 3:";
-            this.lblSubStar3.Visible = false;
             // 
             // lblSysAge
             // 
@@ -213,16 +173,24 @@
             this.lblSysAge.TabIndex = 11;
             this.lblSysAge.Text = "System Age: Unset";
             // 
+            // btnAlterStar
+            // 
+            this.btnAlterStar.Location = new System.Drawing.Point(488, 62);
+            this.btnAlterStar.Name = "btnAlterStar";
+            this.btnAlterStar.Size = new System.Drawing.Size(73, 25);
+            this.btnAlterStar.TabIndex = 12;
+            this.btnAlterStar.Text = "Alter Star 1";
+            this.btnAlterStar.UseVisualStyleBackColor = true;
+            this.btnAlterStar.Visible = false;
+            this.btnAlterStar.Click += new System.EventHandler(this.button1_Click);
+            // 
             // StarSystemGurpsGen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(858, 556);
+            this.ClientSize = new System.Drawing.Size(858, 617);
+            this.Controls.Add(this.btnAlterStar);
             this.Controls.Add(this.lblSysAge);
-            this.Controls.Add(this.lblSubStar3);
-            this.Controls.Add(this.lblSubStar2);
-            this.Controls.Add(this.lblStar3);
-            this.Controls.Add(this.lblStar2);
             this.Controls.Add(this.lblStar1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnGenRandom);
@@ -257,10 +225,7 @@
         private System.Windows.Forms.Button btnGenRandom;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblStar1;
-        private System.Windows.Forms.Label lblStar2;
-        private System.Windows.Forms.Label lblStar3;
-        private System.Windows.Forms.Label lblSubStar2;
-        private System.Windows.Forms.Label lblSubStar3;
         private System.Windows.Forms.Label lblSysAge;
+        private System.Windows.Forms.Button btnAlterStar;
     }
 }
