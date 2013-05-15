@@ -37,7 +37,6 @@
             this.generationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.step1CoreSystemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.step2DetermineSafeOrbitalsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.step3PopulateOrbitalsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblSysName = new System.Windows.Forms.Label();
             this.sysName = new System.Windows.Forms.TextBox();
@@ -46,6 +45,8 @@
             this.lblStar1 = new System.Windows.Forms.Label();
             this.lblSysAge = new System.Windows.Forms.Label();
             this.btnAlterStar = new System.Windows.Forms.Button();
+            this.btnOrbits1 = new System.Windows.Forms.Button();
+            this.step3OutputToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -73,8 +74,9 @@
             // outputToFileToolStripMenuItem
             // 
             this.outputToFileToolStripMenuItem.Name = "outputToFileToolStripMenuItem";
-            this.outputToFileToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.outputToFileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.outputToFileToolStripMenuItem.Text = "Output to File";
+            this.outputToFileToolStripMenuItem.Click += new System.EventHandler(this.outputToFileToolStripMenuItem_Click);
             // 
             // quitToolStripMenuItem
             // 
@@ -88,7 +90,7 @@
             this.generationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.step1CoreSystemToolStripMenuItem,
             this.step2DetermineSafeOrbitalsToolStripMenuItem,
-            this.step3PopulateOrbitalsToolStripMenuItem});
+            this.step3OutputToFileToolStripMenuItem});
             this.generationToolStripMenuItem.Name = "generationToolStripMenuItem";
             this.generationToolStripMenuItem.Size = new System.Drawing.Size(77, 20);
             this.generationToolStripMenuItem.Text = "Generation";
@@ -105,12 +107,7 @@
             this.step2DetermineSafeOrbitalsToolStripMenuItem.Name = "step2DetermineSafeOrbitalsToolStripMenuItem";
             this.step2DetermineSafeOrbitalsToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
             this.step2DetermineSafeOrbitalsToolStripMenuItem.Text = "Step 2 - Determine Safe Orbitals";
-            // 
-            // step3PopulateOrbitalsToolStripMenuItem
-            // 
-            this.step3PopulateOrbitalsToolStripMenuItem.Name = "step3PopulateOrbitalsToolStripMenuItem";
-            this.step3PopulateOrbitalsToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.step3PopulateOrbitalsToolStripMenuItem.Text = "Step 3 - Populate Orbitals";
+            this.step2DetermineSafeOrbitalsToolStripMenuItem.Click += new System.EventHandler(this.step2DetermineSafeOrbitalsToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
@@ -177,18 +174,37 @@
             // 
             this.btnAlterStar.Location = new System.Drawing.Point(488, 62);
             this.btnAlterStar.Name = "btnAlterStar";
-            this.btnAlterStar.Size = new System.Drawing.Size(73, 25);
+            this.btnAlterStar.Size = new System.Drawing.Size(94, 25);
             this.btnAlterStar.TabIndex = 12;
             this.btnAlterStar.Text = "Alter Star 1";
             this.btnAlterStar.UseVisualStyleBackColor = true;
             this.btnAlterStar.Visible = false;
             this.btnAlterStar.Click += new System.EventHandler(this.button1_Click);
             // 
+            // btnOrbits1
+            // 
+            this.btnOrbits1.Location = new System.Drawing.Point(596, 62);
+            this.btnOrbits1.Name = "btnOrbits1";
+            this.btnOrbits1.Size = new System.Drawing.Size(97, 24);
+            this.btnOrbits1.TabIndex = 13;
+            this.btnOrbits1.Text = "Display Orbits";
+            this.btnOrbits1.UseVisualStyleBackColor = true;
+            this.btnOrbits1.Visible = false;
+            this.btnOrbits1.Click += new System.EventHandler(this.btnOrbits_Click);
+            // 
+            // step3OutputToFileToolStripMenuItem
+            // 
+            this.step3OutputToFileToolStripMenuItem.Name = "step3OutputToFileToolStripMenuItem";
+            this.step3OutputToFileToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
+            this.step3OutputToFileToolStripMenuItem.Text = "Step 3 - Output To File";
+            this.step3OutputToFileToolStripMenuItem.Click += new System.EventHandler(this.step3OutputToFileToolStripMenuItem_Click);
+            // 
             // StarSystemGurpsGen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(858, 617);
+            this.Controls.Add(this.btnOrbits1);
             this.Controls.Add(this.btnAlterStar);
             this.Controls.Add(this.lblSysAge);
             this.Controls.Add(this.lblStar1);
@@ -199,7 +215,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "StarSystemGurpsGen";
-            this.Text = "GURPS Space 4e Solar System Generator";
+            this.Text = "Celestial Navigation";
             this.Load += new System.EventHandler(this.StarSystemGurpsGen_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -218,7 +234,6 @@
         private System.Windows.Forms.ToolStripMenuItem generationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem step1CoreSystemToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem step2DetermineSafeOrbitalsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem step3PopulateOrbitalsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem outputToFileToolStripMenuItem;
         private System.Windows.Forms.Label lblSysName;
         private System.Windows.Forms.TextBox sysName;
@@ -227,5 +242,7 @@
         private System.Windows.Forms.Label lblStar1;
         private System.Windows.Forms.Label lblSysAge;
         private System.Windows.Forms.Button btnAlterStar;
+        private System.Windows.Forms.Button btnOrbits1;
+        private System.Windows.Forms.ToolStripMenuItem step3OutputToFileToolStripMenuItem;
     }
 }
