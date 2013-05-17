@@ -37,6 +37,7 @@
             this.generationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.step1CoreSystemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.step2DetermineSafeOrbitalsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.step3OutputToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblSysName = new System.Windows.Forms.Label();
             this.sysName = new System.Windows.Forms.TextBox();
@@ -46,7 +47,7 @@
             this.lblSysAge = new System.Windows.Forms.Label();
             this.btnAlterStar = new System.Windows.Forms.Button();
             this.btnOrbits1 = new System.Windows.Forms.Button();
-            this.step3OutputToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.button1 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -74,7 +75,7 @@
             // outputToFileToolStripMenuItem
             // 
             this.outputToFileToolStripMenuItem.Name = "outputToFileToolStripMenuItem";
-            this.outputToFileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.outputToFileToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.outputToFileToolStripMenuItem.Text = "Output to File";
             this.outputToFileToolStripMenuItem.Click += new System.EventHandler(this.outputToFileToolStripMenuItem_Click);
             // 
@@ -108,6 +109,13 @@
             this.step2DetermineSafeOrbitalsToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
             this.step2DetermineSafeOrbitalsToolStripMenuItem.Text = "Step 2 - Determine Safe Orbitals";
             this.step2DetermineSafeOrbitalsToolStripMenuItem.Click += new System.EventHandler(this.step2DetermineSafeOrbitalsToolStripMenuItem_Click);
+            // 
+            // step3OutputToFileToolStripMenuItem
+            // 
+            this.step3OutputToFileToolStripMenuItem.Name = "step3OutputToFileToolStripMenuItem";
+            this.step3OutputToFileToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
+            this.step3OutputToFileToolStripMenuItem.Text = "Step 3 - Output To File";
+            this.step3OutputToFileToolStripMenuItem.Click += new System.EventHandler(this.step3OutputToFileToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
@@ -192,18 +200,22 @@
             this.btnOrbits1.Visible = false;
             this.btnOrbits1.Click += new System.EventHandler(this.btnOrbits_Click);
             // 
-            // step3OutputToFileToolStripMenuItem
+            // button1
             // 
-            this.step3OutputToFileToolStripMenuItem.Name = "step3OutputToFileToolStripMenuItem";
-            this.step3OutputToFileToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.step3OutputToFileToolStripMenuItem.Text = "Step 3 - Output To File";
-            this.step3OutputToFileToolStripMenuItem.Click += new System.EventHandler(this.step3OutputToFileToolStripMenuItem_Click);
+            this.button1.Location = new System.Drawing.Point(706, 62);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(86, 23);
+            this.button1.TabIndex = 14;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
             // StarSystemGurpsGen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(858, 617);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.btnOrbits1);
             this.Controls.Add(this.btnAlterStar);
             this.Controls.Add(this.lblSysAge);
@@ -244,5 +256,6 @@
         private System.Windows.Forms.Button btnAlterStar;
         private System.Windows.Forms.Button btnOrbits1;
         private System.Windows.Forms.ToolStripMenuItem step3OutputToFileToolStripMenuItem;
+        private System.Windows.Forms.Button button1;
     }
 }

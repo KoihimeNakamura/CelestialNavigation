@@ -72,6 +72,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CelestialNavigation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CelestialNavigation.Designer.cs">
+      <DependentUpon>CelestialNavigation.cs</DependentUpon>
+    </Compile>
     <Compile Include="libStarGen.cs" />
     <Compile Include="OptionCont.cs" />
     <Compile Include="OutputWindow.cs">
@@ -118,6 +124,9 @@
     <Compile Include="Utility Classes\MersenneTwister.cs" />
     <Compile Include="Utility Classes\StarAgeLine.cs" />
     <Compile Include="Utility Classes\TimeLine.cs" />
+    <EmbeddedResource Include="CelestialNavigation.resx">
+      <DependentUpon>CelestialNavigation.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="OutputWindow.resx">
       <DependentUpon>OutputWindow.cs</DependentUpon>
     </EmbeddedResource>
