@@ -80,7 +80,7 @@ namespace StarSystemGurpsGen
         private void btnGenRandom_Click(object sender, EventArgs e)
         {
             //sysName.Text = Program.genRandomName();
-            sysName.Text = libStarGen.genRandomSysName(velvetBag);
+            sysName.Text = libStarGen.genRandomSysName(OptionCont.sysNamePrefix, velvetBag);
         }
 
         private void step1CoreSystemToolStripMenuItem_Click(object sender, EventArgs e)
@@ -97,17 +97,20 @@ namespace StarSystemGurpsGen
                 mySystem = new StarSystem();
 
             if (sysName.Text == "")
-                sysName.Text = libStarGen.genRandomSysName(velvetBag);
+                sysName.Text = libStarGen.genRandomSysName(OptionCont.sysNamePrefix,velvetBag);
 
             mySystem.resetSystem();
             clearDisplay();
             mySystem.sysName = sysName.Text;
-            mySystem.genStellarAge(velvetBag);
+
+            mySystem.sysAge = libStarGen.genSystemAge(velvetBag);
+
             lblSysAge.Text = "System Age: " + mySystem.sysAge + " GYr";
             libStarGen.createStars(velvetBag, mySystem);
 
-            mySystem.sysStars[0].updateMass(Star.rollMass(velvetBag));
+            mySystem.sysStars[0].updateMass(libStarGen.rollStellarMass(velvetBag));
             mySystem.maxMass = mySystem.sysStars[0].currMass;
+
 
             foreach (Star s in mySystem.sysStars)
             {

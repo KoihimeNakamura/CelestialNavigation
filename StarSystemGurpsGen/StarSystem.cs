@@ -127,7 +127,7 @@ namespace StarSystemGurpsGen
             int roll = 0;
 
             //if there's an override in, autoreturn it.
-            if (OptionCont.numStarOverride) return OptionCont.numStars;
+            //if (OptionCont.numStarOverride) return OptionCont.numStars;
 
             roll = ourDice.gurpsRoll();
 
@@ -142,31 +142,6 @@ namespace StarSystemGurpsGen
             return roll;
         }
 
-        public void genStellarAge(Dice ourDice)
-        {
-            
-            //get first roll
-            int roll;
-            roll = ourDice.gurpsRoll();
-
-            if (roll == 3)
-                this.sysAge = 0.01;
-            if (roll >= 4 && roll <= 6)
-                this.sysAge = .1 + (ourDice.rng(1, 6, -1) * .3) + (ourDice.rng(1, 6, -1) * .05);
-            if (roll >= 7 && roll <= 10)
-                this.sysAge = 2 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1);
-            if (roll >= 11 && roll <= 14)
-                this.sysAge = 5.6 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1);
-            if (roll >= 15 && roll <= 17)
-                this.sysAge = 8 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1);
-            if (roll == 18)
-                this.sysAge = 10 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1);
-
-            if (OptionCont.presetOverride)
-                this.sysAge = OptionCont.presetAge;
-            
-
-        }
 
         public static String getPopulationFromAge(double age)
         {

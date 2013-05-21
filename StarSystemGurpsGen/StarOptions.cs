@@ -75,8 +75,8 @@ namespace StarSystemGurpsGen
             if (stelMasSet.Checked == false) OptionCont.stellarMassRangeSet = false;
 
             //numstars
-            OptionCont.numStars = (int)this.numStars.Value;
-            OptionCont.numStarOverride = numStarOverride.Checked;
+            //OptionCont.numStars = (int)this.numStars.Value;
+            //OptionCont.numStarOverride = numStarOverride.Checked;
 
             //set atm pressure
             if (overridePressure.Checked && validateATMPressure())
@@ -117,11 +117,11 @@ namespace StarSystemGurpsGen
             //ageset
             if (overrideAge.Checked == true)
             {
-                OptionCont.presetOverride = true;
-                OptionCont.presetAge = this.ageBar.Value / 100.0;
+             //   OptionCont.presetOverride = true;
+              //  OptionCont.presetAge = this.ageBar.Value / 100.0;
             }
 
-            if (overrideAge.Checked == false) OptionCont.presetOverride = false;
+            //if (overrideAge.Checked == false) OptionCont.presetOverride = false;
 
             //brown dwarf
             OptionCont.replaceLowRedWithBrown = this.repLowRedWithBrown.Checked;

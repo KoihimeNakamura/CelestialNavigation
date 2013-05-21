@@ -24,9 +24,9 @@ namespace StarSystemGurpsGen
         //member arrays of the object
 
         /// <summary>
-        ///   This member contains the table we roll on for stellar mass.
+        /// This member contains the table we roll on for stellar mass. Contains an array of size 19x19, mainly to make passing dierolls easier.
         /// </summary>
-        public static double[][] starMassTable = new double[][]{
+        protected static double[][] starMassTableByRoll = new double[][]{
                  new double[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //Index 0
                  new double[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //Roll 1
                  new double[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //Roll 2
@@ -47,6 +47,12 @@ namespace StarSystemGurpsGen
                  new double[] {0,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1}, //Roll 17
                  new double[] {0,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1}, //Roll 18
              };
+
+        /// <summary>
+        /// This member contains the table we use to determine stellar mass by index.
+        /// </summary>
+        protected static double[] starMassTableByIndex = new double[] { .1,.15,.2,.25,.3,.35,.4,.45,.5,.55,.6,.65,.7,.75,
+            .8,.85,.9,.95,1.0,1.05,1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.5,1.55,1.6,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2 };
 
         /// <summary>
         ///  The minimum luminosity of the star, given its' mass
@@ -184,6 +190,11 @@ namespace StarSystemGurpsGen
         /// </summary>
         public string starColor { get; set; }
 
+        /// <summary>
+        ///  Base constructor, given no details.
+        /// </summary>
+        /// <param name="parent">The parent this star belongs to. (IS_PRIMARY for a primary star)</param>
+        /// <param name="self">The ID of this star</param>
         public Star(int parent, int self) : base(parent, self)
         {
             this.orbitalRadius = 0.0;
@@ -192,6 +203,14 @@ namespace StarSystemGurpsGen
             this.sysPlanets = new List<Satellite>();
         }
 
+        /// <summary>
+        /// A full constructor.
+        /// </summary>
+        /// <param name="age">The age of the star</param>
+        /// <param name="parent">The parent this star belongs to. (IS_PRIMARY for a primary star)</param>
+        /// <param name="self">The ID of this star</param>
+        /// <param name="order">Where the star is in the sequence</param>
+        /// <param name="baseName">The name of the system</param>
         public Star(double age, int parent, int self, int order, string baseName)
             : base(parent, self)
         {
@@ -204,6 +223,13 @@ namespace StarSystemGurpsGen
             this.sysPlanets = new List<Satellite>();
         }
 
+        /// <summary>
+        /// Constructor given the age, parent, self and Order.
+        /// </summary>
+        /// <param name="age">Age of the star</param>
+        /// <param name="parent">The star this belongs to (for a priamry star, put IS_PRIMARY here)</param>
+        /// <param name="self">The star's ID</param>
+        /// <param name="order">Where is it in the system?</param>
         public Star(double age, int parent, int self, int order) : base(parent,self)
         {
             this.starAge = age;
@@ -214,7 +240,12 @@ namespace StarSystemGurpsGen
             this.sysPlanets = new List<Satellite>();
         }
 
-        //this function names the star (generically)
+        /// <summary>
+        /// This function returns a generic name on the scheme [SYSTEMNAME-ID]
+        /// </summary>
+        /// <param name="sysName">The system name</param>
+        /// <param name="id">Where the star is in the system (number)</param>
+        /// <returns>The generic name</returns>
         public static string genGenericName(String sysName, int id)
         {
             char[] starNames = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I' };
@@ -370,24 +401,33 @@ namespace StarSystemGurpsGen
             if (!isWhiteDwarf) this.initMass = mass;
         }
 
-        //add the order ID.
+        /// <summary>
+        /// Sets the order of this star
+        /// </summary>
+        /// <param name="orderID">The order of this star in the system</param>
         public virtual void addOrder(int orderID)
         {
             this.orderID = orderID;
         }
 
-        //generic update lumin (auto determine it in case we don't need to)
+        /// <summary>
+        /// This updates the star to what the current should be given no alterations.
+        /// </summary>
+        /// <param name="ageL">the age line of the star</param>
+        /// <param name="age">The age of the star</param>
+        /// <param name="mass">The current mass of the star</param>
+        /// <returns>The current lumonsity of the star</returns>
         public static double getCurrLumin(StarAgeLine ageL, double age, double mass){
             int ageGroup = ageL.findCurrentAgeGroup(age);
     
-            if (ageGroup == StarAgeLine.RET_MAINBRANCH && mass < .45)
+            if (ageGroup == StarAgeLine.RET_MAINBRANCH && mass < .45) //if it's under .45 solar masses, it'll always be the minimum luminosity.
                 return Star.getMinLumin(mass);
-            if (ageGroup == StarAgeLine.RET_MAINBRANCH && mass >= .45)  
+            if (ageGroup == StarAgeLine.RET_MAINBRANCH && mass >= .45)  // now it's going to be somewhere between the minimum and maximum, given it's age.
                     return (Star.getMinLumin(mass) + ((age / ageL.getMainLimit()) * (Star.getMaxLumin(mass) - Star.getMinLumin(mass))));
-            if (ageGroup == StarAgeLine.RET_SUBBRANCH)
+            if (ageGroup == StarAgeLine.RET_SUBBRANCH) //simply maxmium luminsoity
                     return Star.getMaxLumin(mass);
             if (ageGroup == StarAgeLine.RET_GIANTBRANCH)
-                return Star.getMaxLumin(mass) * 10000; //IMPLEMENTED HOUSE RULE.
+                return Star.getMaxLumin(mass) * 10000; //IMPLEMENTED HOUSE RULE. Yeah. Uh.. Yeah.
             if (ageGroup == StarAgeLine.RET_DWARFBRANCH)
                 return .0043;
 
@@ -408,12 +448,16 @@ namespace StarSystemGurpsGen
             return 0;
         }
 
+        /// <summary>
+        /// This function sets the inital luminosity of a Star object
+        /// </summary>
         public virtual void setLumin(){
             int currAgeGroup = this.evoLine.findCurrentAgeGroup(this.starAge);
             this.initLumin = getMinLumin(); //this applies for most stars.
   
             this.currLumin = Star.getCurrLumin(this.evoLine, this.starAge, this.currMass);
   
+            //set the maximum luminosity. Used for determining the formation zones if the star is in a few phases.
             if (currAgeGroup == StarAgeLine.RET_GIANTBRANCH)
                 this.maxLumin = this.currLumin;
             

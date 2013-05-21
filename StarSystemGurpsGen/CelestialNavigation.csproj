@@ -37,6 +37,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\StarSystemGurpsGen.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -46,6 +47,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\StarSystemGurpsGen.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>88BDF3BA74620F612F0D4F789CCB75A1FD1036D0</ManifestCertificateThumbprint>
@@ -77,6 +79,12 @@
     </Compile>
     <Compile Include="CelestialNavigation.Designer.cs">
       <DependentUpon>CelestialNavigation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CreateStars.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreateStars.Designer.cs">
+      <DependentUpon>CreateStars.cs</DependentUpon>
     </Compile>
     <Compile Include="libStarGen.cs" />
     <Compile Include="OptionCont.cs" />
@@ -127,6 +135,9 @@
     <EmbeddedResource Include="CelestialNavigation.resx">
       <DependentUpon>CelestialNavigation.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="CreateStars.resx">
+      <DependentUpon>CreateStars.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="OutputWindow.resx">
       <DependentUpon>OutputWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -149,6 +160,8 @@
       <DependentUpon>StarSystemGurpsGen.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\DataSources\Satelite.datasource" />
+    <None Include="Properties\DataSources\Star.datasource" />
+    <None Include="Properties\DataSources\StarSystem.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

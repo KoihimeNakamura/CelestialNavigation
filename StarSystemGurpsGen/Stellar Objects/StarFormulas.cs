@@ -20,17 +20,59 @@ namespace StarSystemGurpsGen
         }
 
 
-        //object arrays.
-       
-        public virtual double stellarMass(int rollA, int rollB)
-        {
-            if (rollA > 18 || rollA < 0 || rollB > 18 || rollB < 0)
-                throw new System.ArgumentException("One of the passed dice roll is beyond limits", "original");
+       /// <summary>
+       /// This function is used to safely roll on the table (contains some error bound checking.)
+       /// </summary>
+       /// <param name="rollA">First roll</param>
+       /// <param name="rollB">Second roll</param>
+       /// <exception cref="System.ArgumentException">Throws an ArgumentException if this is out of bounds (below 0 and above 18)</exception>
+       /// <returns>The table entry</returns>
+       public static double getMassByRoll(int rollA, int rollB)
+       {
+          if (rollA > 18 || rollA < 0 || rollB > 18 || rollB < 0)
+                throw new System.ArgumentException("One of the passed dice roll is beyond limits");
 
-            return Star.starMassTable[rollA][rollB];
+            return Star.starMassTableByRoll[rollA][rollB];
         }
 
-        public static double WhiteDwarfTemp(double mass, double age)
+       /// <summary>
+       /// Returns the mass from the array <see cref="Star.starMassTableByIndex"/> given an index.
+       /// </summary>
+       /// <param name="index">The index to retrieve </param>
+       /// <exception cref="System.ArgumentException">Throws an ArgumentException if this is out of bounds (below 0 and above the length.)</exception>
+       /// <returns>The mass</returns>
+       public static double getMassByIndex(int index)
+       {
+           if (index < 0 && index > Star.starMassTableByIndex.Length)
+               throw new System.ArgumentException("The passed index is beyond limits");
+
+           return Star.starMassTableByIndex[index];
+       }
+
+       /// <summary>
+       /// This function gets the current index in the mass table by the current mass
+       /// </summary>
+       /// <param name="mass">The mass we're looking for</param>
+       /// <returns>The index</returns>
+       public static int getStellarMassPos(double mass)
+       {
+           for (int i = 0; i < Star.starMassTableByIndex.Length; i++)
+           {
+               if (mass == Star.starMassTableByIndex[i])
+                   return i;
+
+               if (i != Star.starMassTableByIndex.Length - 1 && mass < Star.starMassTableByIndex[i] && mass > Star.starMassTableByIndex[i + 1])
+                   return i;
+
+               if (i == Star.starMassTableByIndex.Length - 1)
+                   return i;      
+           }
+
+           return -1;
+       }
+
+
+       public static double WhiteDwarfTemp(double mass, double age)
         {
             double currTemp = 0.0;
 
@@ -265,81 +307,6 @@ namespace StarSystemGurpsGen
         public static double calcOrbitalPeriod(double orbitMass, double srcMass, double orbitalRadius)
         {
             return Math.Sqrt(Math.Pow(orbitalRadius, 3) / (orbitMass + srcMass));
-        }
-
-        public static double rollMass(Dice velvetBag)
-        {
-            int rollA, rollB;
-            
-            rollA = velvetBag.gurpsRoll();
-            rollB = velvetBag.gurpsRoll();
-
-            
-            if (OptionCont.forceGardenFavorable)
-            {
-                int temp = velvetBag.rng(1, 6);
-                if (temp == 1) rollA = 5;
-                if (temp == 2) rollA = 6;
-                if (temp == 3 || temp == 4) rollA = 7;
-                if (temp == 5 || temp == 6) rollA = 8;
-            }
-
-            if (rollA > 18) rollA = 18;
-            if (rollB > 18) rollB = 18;
-
-            if (OptionCont.stellarMassRangeSet)
-            {
-               return velvetBag.rollInRange(OptionCont.minStellarMass, OptionCont.maxStellarMass);
-            }
-
-            return Star.starMassTable[rollA][rollB];
-        }
-
-        public static double rollMass(Dice velvetBag, double maxMass)
-        {
-            int diff, currPos = 0, total;
-
-            //get the current position
-            for (int i = 0; i <= 18; i++)
-            {
-                for (int j = 0; j <= 18; j++)
-                {
-                    if (maxMass == Star.starMassTable[i][j])
-                    {
-                        currPos = (i * 18) + j;
-                    }
-                }
-            }
-
-            diff = velvetBag.rng(1, 6, -1) * velvetBag.rng(1, 6);
-            total = (diff * 2) + currPos;
-            if (total > 341) total = 341;
-            
-            //convert it to the format we need for the table.
-            int valA = 0, valB = 0;
-            valA = total / 18;
-            if (valA < 3) valA = 3;
-            
-            
-            valB = total - (valA * 18);
-            if (valB < 3) valB = 3;
-
-            if (valA > 18) valA = 18;
-            if (valB > 18) valB = 18;
-
-            if (OptionCont.stellarMassRangeSet)
-            {
-                if (maxMass < OptionCont.minStellarMass) return maxMass;
-                do
-                {
-                    double tempMass = velvetBag.rollInRange(OptionCont.minStellarMass, OptionCont.maxStellarMass);
-                    if (tempMass <= maxMass) return tempMass;
-                } while (true);
-            }
-
-
-            return Star.starMassTable[valA][valB];    
-
         }
 
         public static String getColor(double temp)

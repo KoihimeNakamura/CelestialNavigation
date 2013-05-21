@@ -6,28 +6,197 @@ using System.Threading.Tasks;
 
 namespace StarSystemGurpsGen
 {
+    /// <summary>
+    /// This contains a series of helper functions to generate a Star System.
+    /// </summary>
     public static class libStarGen
     {
-        public static void generateAStar(Star s, Dice ourDice, double maxMass, string name)
+        /// <summary>
+        /// This generates a random name for a star system
+        /// </summary>
+        /// <param name="prefix">The prefix for the generator</param>
+        /// <param name="ourDice">Dice used in rolling</param>
+        /// <returns>A random name for a star system</returns>
+        public static string genRandomSysName(string prefix, Dice ourDice)
         {
-            //check mass first
+            return (prefix + Math.Round(ourDice.rollRange(0, 1) * 1000000000, 0));
+        }
+
+        /// <summary>
+        ///  This function generates a random age per GURPS Space 4e rules. 
+        /// </summary>
+        /// <param name="ourDice">The dice this rolls</param>
+        /// <returns>The system age</returns>
+        public static double genSystemAge(Dice ourDice)
+        {
+
+            //get first roll
+            int roll;
+            roll = ourDice.gurpsRoll();
+
+            if (OptionCont.getSystemAge() != -1)
+                return OptionCont.getSystemAge();
+
+            if (roll == 3)
+                return 0.01;
+            if (roll >= 4 && roll <= 6)
+                return (.1 + (ourDice.rng(1, 6, -1) * .3) + (ourDice.rng(1, 6, -1) * .05));
+            if (roll >= 7 && roll <= 10)
+                return (2 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1));
+            if (roll >= 11 && roll <= 14)
+                return (5.6 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1));
+            if (roll >= 15 && roll <= 17)
+                return (8 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1));
+            if (roll == 18)
+                return (10 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1));
+
+            return 13.8;
+        }
+
+        /// <summary>
+        /// This function generates and populates our stars. 
+        /// </summary>
+        /// <param name="ourBag">The Dice object used for our PRNG</param>
+        /// <param name="ourSystem">The solar system we are creating stars for</param>
+        public static void createStars(Dice ourBag, StarSystem ourSystem)
+        {
+            int numStars = 0;
+
+            //determine the number of stars
+            if (OptionCont.getNumberOfStars() != -1)
+            {
+                numStars = OptionCont.getNumberOfStars();
+            }
+            else
+            {
+                // We take the roll, add 2 if it's in an open cluster,subtract 1 if not, then divide it by 5.
+                // This matches the roll probablity to the table.
+                numStars = (int)(Math.Floor((ourBag.gurpsRoll() + (OptionCont.inOpenCluster ? 2 : -1)) / 5.0));
+                
+                //fix a few possible logic bugs.
+                if (numStars < 1) numStars = 1;
+                if (numStars > 3) numStars = 3;
+            }
+
+            //creating the stars.
+            for (int i = 0; i < numStars; i++)
+            {
+                if (i == 0)
+                {
+                    ourSystem.addStar(Star.IS_PRIMARY, Star.IS_PRIMARY, i);
+
+                    //manually set the first star's mass and push it to the max mass setting
+                    ourSystem.sysStars[0].updateMass(libStarGen.rollStellarMass(ourBag));
+                    ourSystem.maxMass = ourSystem.sysStars[0].currMass;
+
+                    //generate the star
+                    libStarGen.generateAStar(ourSystem.sysStars[i], ourBag, ourSystem.maxMass, ourSystem.sysName);
+
+                }
+                if (i == 1)
+                {
+                    ourSystem.addStar(Star.IS_SECONDARY, Star.IS_PRIMARY, i);
+                }
+                if (i == 2)
+                {
+                    ourSystem.addStar(Star.IS_TRINARY, Star.IS_PRIMARY, i);
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// This function rolls for mass on a star.
+        /// </summary>
+        /// <param name="velvetBag">The dice object</param>
+        /// <param name="maxMass">the maximum mass. Has a default value of 0.0, indicating no max mass (may be left out)</param>
+        /// <returns>The rolled mass of a star</returns>
+        public static double rollStellarMass(Dice velvetBag, double maxMass = 0.0)
+        {
+            int rollA, rollB; //roll integers
+            double tmpRoll; //test value.
+
+
+            //This is meant to send out rolls if the max mass IS set.
+            if (maxMass != 0.0 && OptionCont.useStraightRoll)
+            {
+                do
+                {
+                    tmpRoll = Star.getMassByRoll(velvetBag.gurpsRoll(), velvetBag.gurpsRoll());
+                } while (tmpRoll > maxMass);
+
+                return tmpRoll;
+            }
+
+            if (maxMass != 0.0 && !OptionCont.useStraightRoll)
+            {
+                int currPos = Star.getStellarMassPos(maxMass);
+                
+                //error bound checking. The entire program is kinda predicated aroudn the idea you won't have this happen.
+                //IF IT DOES, then do the simple method.
+                if (currPos == -1)
+                {
+                    do
+                    {
+                        tmpRoll = Star.getMassByRoll(velvetBag.gurpsRoll(), velvetBag.gurpsRoll());
+                    } while (tmpRoll > maxMass);
+
+                    return tmpRoll;
+                }
+                    
+                //else, roll for the new index.
+                rollA = velvetBag.gurpsRoll();
+                rollB = velvetBag.rng(rollA,6);
+
+
+                //get the new index
+                if (currPos - rollB <= 0) currPos = 0;
+                else currPos = currPos - rollB;
+
+                return Star.getMassByIndex(currPos);
+
+            }
+
+            //the maximum mass is unset. Roll on the array.
+            rollA = velvetBag.gurpsRoll();
+            rollB = velvetBag.gurpsRoll();
+
+            return Star.getMassByRoll(rollA, rollB);
+        }
+
+        /// <summary>
+        /// This function fills in the details of the star.
+        /// </summary>
+        /// <param name="s">The star to be filled in</param>
+        /// <param name="ourDice">The dice object used</param>
+        /// <param name="maxMass">Max mass of the system</param>
+        /// <param name="sysName">The name of the system</param>
+        public static void generateAStar(Star s, Dice ourDice, double maxMass, string sysName)
+        {
+            //check mass first - if unset, set it.
             if (s.currMass == 0)
             {
                 if (s.orderID == Star.IS_PRIMARY)
                 {
-                    s.updateMass(Star.rollMass(ourDice));
+                    s.updateMass(libStarGen.rollStellarMass(ourDice));
                     maxMass = s.currMass;
                 }
-                else s.updateMass(Star.rollMass(ourDice, maxMass));
+                
+                else 
+                    s.updateMass(libStarGen.rollStellarMass(ourDice, maxMass));
             }
 
+            //if we are in the white dwarf branch, reroll mass.
             if (s.evoLine.findCurrentAgeGroup(s.starAge) == StarAgeLine.RET_DWARFBRANCH)
                 s.updateMass(ourDice.rollInRange(0.9, 1.4),true);
 
-            s.name = Star.genGenericName(name, s.orderID); 
-            //initalize the luminosity first
+            //set the generic name
+            s.name = Star.genGenericName(sysName, s.orderID); 
+
+            //initalize the luminosity first, then update it given the current age, status and mass.
             s.setLumin();
             s.currLumin = Star.getCurrLumin(s.evoLine, s.starAge, s.currMass);
+
             //check if it's a white dwarf
             if (s.evoLine.findCurrentAgeGroup(s.starAge) == StarAgeLine.RET_DWARFBRANCH)
             {
@@ -113,16 +282,6 @@ namespace StarSystemGurpsGen
             }
 
             return ratio;
-        }
-
-        //generates a name of the form XSC#########
-        public static string genRandomSysName(Dice ourDice)
-        {
-            String ret = "XSC";
-
-            ret = ret + Math.Round(ourDice.rollRange(0, 1) * 1000000000,0);
-
-            return ret;
         }
 
         public static double determineDistance(double planetDistance, double[,] distChart, int planetParent, int starID)
@@ -733,22 +892,7 @@ namespace StarSystemGurpsGen
 
         }
 
-        public static void createStars(Dice ourBag, StarSystem ourSystem)
-        {
-            int numStars = StarSystem.genNumOfStars(ourBag);
-            
-            //creating the stars.
-            for (int i = 0; i < numStars; i++)
-            {
-                if (i == 0)
-                    ourSystem.addStar(Star.IS_PRIMARY, Star.IS_PRIMARY, i);
-                if (i == 1)
-                    ourSystem.addStar(Star.IS_SECONDARY, Star.IS_PRIMARY, i);
-                if (i == 2)
-                    ourSystem.addStar(Star.IS_TRINARY, Star.IS_PRIMARY, i);
-            }
 
-        }
 
         public static void createPlanets(StarSystem ourSystem, List<Satellite> ourPlanets, Dice velvetBag)
         {
