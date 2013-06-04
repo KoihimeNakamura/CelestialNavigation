@@ -33,6 +33,14 @@ namespace StarSystemGurpsGen
         /// </summary>
         private DataTable starTable { get; set; }
 
+        /// <summary>
+        /// This is used to tell the parent form we're done with star generation
+        /// </summary>
+        public bool createStarsFinished { get; set; }
+
+        /// <summary>
+        /// Constructor for the form object.
+        /// </summary>
         public CelestialNavigation()
         {
             ourSystem = new StarSystem();
@@ -40,18 +48,20 @@ namespace StarSystemGurpsGen
             InitializeComponent();
 
             starTable = new DataTable("starTable");
-            starTable.Columns.Add("currMass", typeof(double));
-            starTable.Columns.Add("name", typeof(string));
-            starTable.Columns.Add("currLumin", typeof(double));
-            starTable.Columns.Add("effTemp", typeof(double));
-            starTable.Columns.Add("orbitalRadius", typeof(double));
-            starTable.Columns.Add("gasGiantFlag", typeof(string));
-            starTable.Columns.Add("starColor", typeof(string));
-            starTable.Columns.Add("currentStage", typeof(string));
+            starTable.Columns.Add("Current Mass (sol mass)", typeof(double));
+            starTable.Columns.Add("Name", typeof(string));
+            starTable.Columns.Add("Spectral Type", typeof(string));
+            starTable.Columns.Add("Current Luminosity (sol lumin)", typeof(double));
+            starTable.Columns.Add("Effective Temperature(K)", typeof(double));
+            starTable.Columns.Add("Orbital Radius (AU)", typeof(double));
+            starTable.Columns.Add("Gas Giant", typeof(string));
+            starTable.Columns.Add("Color", typeof(string));
+            starTable.Columns.Add("Stellar Evolution Stage", typeof(string));
 
             //assign the source. We do it this way to allow for refreshing things.
             starSource = new BindingSource();
             starSource.DataSource = this.starTable;
+            createStarsFinished = false;
 
             dgvStars.DataSource = starSource;
         
@@ -68,13 +78,26 @@ namespace StarSystemGurpsGen
         }
 
         /// <summary>
-        /// Begin Step 1 - generating the base system and stars.
+        /// Begin Step 1 - generating the base system and stars, then displays them
         /// </summary>
         /// <param name="sender">The sender object</param>
         /// <param name="e">The event arguments</param>
         private void btnGenStars_Click(object sender, EventArgs e)
         {
-            CreateStars nCS = new CreateStars(this.ourSystem, this.velvetBag);
+            this.createStarsFinished = false;
+
+            //clear the tables.
+            if (this.ourSystem.countStars() > 0)
+            {
+                this.ourSystem.sysStars.Clear();
+                this.starTable.Clear();
+                refreshStarDGV();
+            }
+
+            CreateStars nCS = new CreateStars(this.ourSystem, this.velvetBag, this);
+
+            //register a closed event here.
+            nCS.FormClosed += new System.Windows.Forms.FormClosedEventHandler(createStars_Closed);
             nCS.ShowDialog();
         }
 
@@ -88,6 +111,30 @@ namespace StarSystemGurpsGen
             this.ourSystem.resetSystem();
             lblSysAge.Text = "";
             lblSysName.Text = "";
+
+            this.ourSystem.sysStars.Clear();
+            this.starTable.Clear();
+            refreshStarDGV();
         }
+
+        /// <summary>
+        /// The object called when the create stars form is closed. Checks to see if we should update the listing
+        /// </summary>
+        /// <param name="sender">The sender object</param>
+        /// <param name="e">The event arguments</param>
+        private void createStars_Closed(object sender, EventArgs e)
+        {
+            if (this.createStarsFinished)
+            {
+                foreach (Star s in this.ourSystem.sysStars)
+                {
+                    starTable.Rows.Add(s.currMass, s.name, s.specType, Math.Round(s.currLumin,4), s.effTemp, s.orbitalRadius, Star.descGasGiantFlag(s.gasGiantFlag), s.starColor, s.returnCurrentBranchDesc());
+                }
+
+                lblSysAge.Text = this.ourSystem.sysAge + " GYr";
+                lblSysName.Text = this.ourSystem.sysName;
+            }
+        }
+
     }
 }

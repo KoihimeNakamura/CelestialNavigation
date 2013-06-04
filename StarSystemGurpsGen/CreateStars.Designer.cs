@@ -38,6 +38,7 @@
             this.chkForceGarden = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.chkBypassRules = new System.Windows.Forms.CheckBox();
             this.chkAnyFlareStar = new System.Windows.Forms.CheckBox();
             this.chkMoreFlare = new System.Windows.Forms.CheckBox();
             this.chkFantasyColors = new System.Windows.Forms.CheckBox();
@@ -55,7 +56,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.txtSysName = new System.Windows.Forms.TextBox();
             this.btnRandomName = new System.Windows.Forms.Button();
-            this.chkBypassRules = new System.Windows.Forms.CheckBox();
             this.pnlSystem.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numAge)).BeginInit();
             this.panel1.SuspendLayout();
@@ -186,6 +186,16 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(276, 261);
             this.panel1.TabIndex = 2;
+            // 
+            // chkBypassRules
+            // 
+            this.chkBypassRules.AutoSize = true;
+            this.chkBypassRules.Location = new System.Drawing.Point(15, 50);
+            this.chkBypassRules.Name = "chkBypassRules";
+            this.chkBypassRules.Size = new System.Drawing.Size(184, 17);
+            this.chkBypassRules.TabIndex = 24;
+            this.chkBypassRules.Text = "Roll secondary star mass on table";
+            this.chkBypassRules.UseVisualStyleBackColor = true;
             // 
             // chkAnyFlareStar
             // 
@@ -389,16 +399,6 @@
             this.btnRandomName.Text = "Random";
             this.btnRandomName.UseVisualStyleBackColor = true;
             this.btnRandomName.Click += new System.EventHandler(this.btnRandomName_Click);
-            // 
-            // chkBypassRules
-            // 
-            this.chkBypassRules.AutoSize = true;
-            this.chkBypassRules.Location = new System.Drawing.Point(15, 50);
-            this.chkBypassRules.Name = "chkBypassRules";
-            this.chkBypassRules.Size = new System.Drawing.Size(184, 17);
-            this.chkBypassRules.TabIndex = 24;
-            this.chkBypassRules.Text = "Roll secondary star mass on table";
-            this.chkBypassRules.UseVisualStyleBackColor = true;
             // 
             // CreateStars
             // 

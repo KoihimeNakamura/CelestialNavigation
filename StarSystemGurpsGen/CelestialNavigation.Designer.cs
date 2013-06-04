@@ -66,7 +66,7 @@
             this.dgvStars.Location = new System.Drawing.Point(3, 48);
             this.dgvStars.Name = "dgvStars";
             this.dgvStars.ReadOnly = true;
-            this.dgvStars.Size = new System.Drawing.Size(770, 166);
+            this.dgvStars.Size = new System.Drawing.Size(1039, 166);
             this.dgvStars.TabIndex = 2;
             // 
             // label1
@@ -117,7 +117,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(785, 579);
+            this.ClientSize = new System.Drawing.Size(1058, 579);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.lblSysAge);
             this.Controls.Add(this.label2);

@@ -121,7 +121,7 @@ namespace StarSystemGurpsGen
 
             if (mySystem.countStars() > 1)
             {
-                libStarGen.genStellarOrbitals(mySystem, velvetBag);
+                libStarGen.placeOurStars(mySystem, velvetBag);
             }
 
             label1.Visible = true;
@@ -131,7 +131,6 @@ namespace StarSystemGurpsGen
                 if (s.selfID == Star.IS_PRIMARY)
                 {
                     lblStar1.Visible = true;
-                    btnAlterStar.Visible = true;
                     lblStar1.Text = s.printSummaryLine("Star 1:");
                 }
 
@@ -226,38 +225,6 @@ namespace StarSystemGurpsGen
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //MessageBox.Show(e.ToString());
-           // MessageBox.Show(sender.ToString());
-            Button ourButton = (System.Windows.Forms.Button) sender;
-            if (ourButton.Text == "Alter Star 1")
-            {
-                StarAlter updateStar = new StarAlter(0, this.mySystem);
-                updateStar.ShowDialog();
-            }
-
-            if (ourButton.Text == "Alter Star 2")
-            {
-                StarAlter updateStar = new StarAlter(this.mySystem.star2index, this.mySystem);
-                updateStar.ShowDialog();
-            }
-
-            if (ourButton.Text == "Alter Star 3")
-            {
-                StarAlter updateStar = new StarAlter(this.mySystem.star3index, this.mySystem);
-                updateStar.ShowDialog();
-            }
-
-            if (ourButton.Text == "Alter Star 2 Sub")
-            {
-                StarAlter updateStar = new StarAlter(this.mySystem.subCompanionStar2index, this.mySystem);
-                updateStar.ShowDialog();
-            }
-
-            if (ourButton.Text == "Alter Star 3 Sub")
-            {
-                StarAlter updateStar = new StarAlter(this.mySystem.subCompanionStar3index, this.mySystem);
-                updateStar.ShowDialog();
-            }
         }
 
         private void clearDisplay()
@@ -625,6 +592,11 @@ namespace StarSystemGurpsGen
         {
             CelestialNavigation cs = new CelestialNavigation();
             cs.ShowDialog();
+        }
+
+        private void StarSystemGurpsGen_FormClosed(object sender, FormClosedEventArgs e)
+        {
+
         }
    }
 }

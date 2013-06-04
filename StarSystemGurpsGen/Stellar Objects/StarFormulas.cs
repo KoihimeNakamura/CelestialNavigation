@@ -71,53 +71,6 @@ namespace StarSystemGurpsGen
            return -1;
        }
 
-
-       public static double WhiteDwarfTemp(double mass, double age)
-        {
-            double currTemp = 0.0;
-
-            if (mass > 1.2 && mass <= 1.4)
-               currTemp = 60000;
-
-            if (mass > 1.0 && mass <= 1.2)
-                currTemp = 55000;
-
-            if (mass > .6 && mass <= 1.0)
-                currTemp = 45000;
-
-            if (mass >= .3 && mass <= .6)
-                currTemp = 30000;
-
-            if (mass < .3)
-                currTemp = 25000;
-
-            if (age <= .3)
-                currTemp = currTemp * .85;
-
-            if (age > .3 && age <= 2.0)
-                currTemp = currTemp * .65;
-
-            if (age > 2.0 && age <= 2.5)
-                currTemp = currTemp * .45;
-
-            if (age > 2.5 && age <= 3.5)
-                currTemp = currTemp * .3;
-
-            if (age > 3.5 && age <= 5)
-                currTemp = currTemp * .25;
-
-            if (age > 5 && age <= 7)
-                currTemp = currTemp * .1;
-
-            if (age > 7 && age <= 11)
-                currTemp = currTemp * .02;
-
-            if (age > 11)
-                currTemp = 20;
-
-            return currTemp;
-        }
-
         public static string getStellarTypeFromMass(double mass)
         {
             if (mass <= .125) return "M7";
@@ -259,6 +212,11 @@ namespace StarSystemGurpsGen
             return tmpDbl;
         }
 
+        /// <summary>
+        /// Calculates the inital temperature of a star, given it's mass
+        /// </summary>
+        /// <param name="currMass">The mass of a star being calculated</param>
+        /// <returns>The initial effective temperature</returns>
         public static double getInitTemp(double currMass)
         {
             double tmpDbl;
@@ -272,10 +230,10 @@ namespace StarSystemGurpsGen
 
         public static double getRadius(double mass, double effTemp, double currLumin, int currentAgeGroup)
         {
-            if (currentAgeGroup != StarAgeLine.RET_DWARFBRANCH)
+            if (currentAgeGroup != StarAgeLine.RET_COLLASPEDSTAR)
                 return ((155000 * Math.Sqrt(currLumin)) / Math.Pow(effTemp, 2));
             else
-                return (.0001118 * Math.Pow(mass, (1 / 3)));  
+                 return 8748.95685 * Math.Pow(mass, -1 / 3);
         }
 
 
@@ -307,26 +265,6 @@ namespace StarSystemGurpsGen
         public static double calcOrbitalPeriod(double orbitMass, double srcMass, double orbitalRadius)
         {
             return Math.Sqrt(Math.Pow(orbitalRadius, 3) / (orbitMass + srcMass));
-        }
-
-        public static String getColor(double temp)
-        {
-            string color = "";
-
-            if (temp >= 33000) return "blue";
-            if (temp >= 10000 && temp < 33000) return "Blue-white";
-            if (temp >= 7500 && temp < 10000) return "Whitish Blue";
-            if (temp >= 6000 && temp < 7500) return "White";
-            if (temp >= 5200 && temp < 6000) return "Yellow";
-            if (temp >= 4250 && temp < 5200) return "Yellowish Orange";
-            if (temp >= 3700 && temp < 4250) return "Orange";
-            if (temp >= 2000 && temp < 3700) return "Orangish Red";
-            if (temp >= 1300 && temp < 2000) return "Red";
-            if (temp >= 700 && temp < 1300) return "Purplish Red";
-            if (temp >= 100 && temp < 700) return "Brown";
-            if (temp < 100) return "Black";
-
-            return color;
         }
 
         /**
@@ -413,6 +351,11 @@ namespace StarSystemGurpsGen
             return this.zonesOfInterest.verifyRange(this.getConventionalRange());
         }
 
+        /// <summary>
+        /// This describes the gas giant flag.
+        /// </summary>
+        /// <param name="flag">The gas giant flag</param>
+        /// <returns>A string containing the description of the flag</returns>
         public static String descGasGiantFlag(int flag)
         {
             if (flag == GASGIANT_CONVENTIONAL) return "Conventional Gas Giant";

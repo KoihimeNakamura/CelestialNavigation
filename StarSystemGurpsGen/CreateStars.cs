@@ -10,6 +10,9 @@ using System.Windows.Forms;
 
 namespace StarSystemGurpsGen
 {
+    /// <summary>
+    /// This object basically runs stellar generation for the program
+    /// </summary>
     public partial class CreateStars : Form
     {
         /// <summary>
@@ -22,11 +25,19 @@ namespace StarSystemGurpsGen
         /// </summary>
         public Dice velvetBag { get; set; }
 
-        public CreateStars(StarSystem s, Dice d)
+        private CelestialNavigation parent { get; set; }
+
+        /// <summary>
+        /// Constructor object for the Create Stars 
+        /// </summary>
+        /// <param name="s">Our StarSystem</param>
+        /// <param name="d">The dice we use</param>
+        public CreateStars(StarSystem s, Dice d, CelestialNavigation p)
         {
             velvetBag = d;
             ourSystem = s;
             InitializeComponent();
+            parent = p;
 
             //creates a tool tip for the form.
             ToolTip starToolTip = new ToolTip();
@@ -156,6 +167,9 @@ namespace StarSystemGurpsGen
 
             //start creating and making stars.
             libStarGen.createStars(velvetBag, ourSystem);
+            parent.createStarsFinished = true;
+            this.Close(); //close the form
+            
         }
 
         /// <summary>
@@ -167,5 +181,6 @@ namespace StarSystemGurpsGen
         {
             txtSysName.Text = libStarGen.genRandomSysName(OptionCont.sysNamePrefix, velvetBag);
         }
+
     }
 }

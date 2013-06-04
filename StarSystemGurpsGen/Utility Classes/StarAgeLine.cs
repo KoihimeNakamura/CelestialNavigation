@@ -44,9 +44,9 @@ namespace StarSystemGurpsGen
         readonly public static int RET_GIANTBRANCH = 22;
 
         /// <summary>
-        /// Flag to signify it's in the White Dwarf Stage
+        /// Flag to signify it's a collasped star
         /// </summary>
-        readonly public static int RET_DWARFBRANCH = 23;
+        readonly public static int RET_COLLASPEDSTAR = 23;
 
         /// <summary>
         /// Error flag.
@@ -158,7 +158,7 @@ namespace StarSystemGurpsGen
             if (currAge < this.points[AG_GIANTLIMIT])
                 return RET_GIANTBRANCH;
             if (currAge > this.points[AG_GIANTLIMIT])
-                return RET_DWARFBRANCH;
+                return RET_COLLASPEDSTAR;
 
             return RET_ERROR;
         }
@@ -218,9 +218,25 @@ namespace StarSystemGurpsGen
             if (branch == RET_MAINBRANCH) return "Main Sequence";
             if (branch == RET_SUBBRANCH) return "Sub Giant Star";
             if (branch == RET_GIANTBRANCH) return "Asymptoic Giant Branch";
-            if (branch == RET_DWARFBRANCH) return "White Dwarf Branch";
+            if (branch == RET_COLLASPEDSTAR) return "White Dwarf Branch";
 
             return "ERROR";
         }
+
+
+        /// <summary>
+        /// This function returns the age since collapse. 
+        /// </summary>
+        /// <param name="age">The current age</param>
+        /// <returns>The age from collapse</returns>
+        /// <exception cref="Exception">Throws an error if you have not reached the collapse stage</exception>
+        public double getAgeFromCollapse(double age)
+        {
+            if (this.findCurrentAgeGroup(age) != RET_COLLASPEDSTAR)
+                throw new Exception("This star has not collapsed.");
+
+            return age - this.points[AG_GIANTLIMIT];
+        }
+        
     }
 }

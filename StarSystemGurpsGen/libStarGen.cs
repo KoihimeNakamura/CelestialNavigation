@@ -96,11 +96,21 @@ namespace StarSystemGurpsGen
                 if (i == 1)
                 {
                     ourSystem.addStar(Star.IS_SECONDARY, Star.IS_PRIMARY, i);
+                    //generate the star
+                    libStarGen.generateAStar(ourSystem.sysStars[i], ourBag, ourSystem.maxMass, ourSystem.sysName);
                 }
                 if (i == 2)
                 {
                     ourSystem.addStar(Star.IS_TRINARY, Star.IS_PRIMARY, i);
+                    //generate the star
+                    libStarGen.generateAStar(ourSystem.sysStars[i], ourBag, ourSystem.maxMass, ourSystem.sysName);
                 }
+            }
+
+            //now generate orbitals
+            if (ourSystem.countStars() > 1)
+            {
+                libStarGen.placeOurStars(ourSystem, ourBag);
             }
 
         }
@@ -116,22 +126,18 @@ namespace StarSystemGurpsGen
             int rollA, rollB; //roll integers
             double tmpRoll; //test value.
 
-
-            //This is meant to send out rolls if the max mass IS set.
-            if (maxMass != 0.0 && OptionCont.useStraightRoll)
+            if (maxMass == 0.0)
             {
-                do
-                {
-                    tmpRoll = Star.getMassByRoll(velvetBag.gurpsRoll(), velvetBag.gurpsRoll());
-                } while (tmpRoll > maxMass);
-
-                return tmpRoll;
+                if (!OptionCont.stellarMassRangeSet)
+                    return Star.getMassByRoll(velvetBag.gurpsRoll(), velvetBag.gurpsRoll());
+                else
+                    return velvetBag.rollInRange(OptionCont.minStellarMass, OptionCont.maxStellarMass);
             }
 
-            if (maxMass != 0.0 && !OptionCont.useStraightRoll)
+            else
             {
                 int currPos = Star.getStellarMassPos(maxMass);
-                
+
                 //error bound checking. The entire program is kinda predicated aroudn the idea you won't have this happen.
                 //IF IT DOES, then do the simple method.
                 if (currPos == -1)
@@ -143,10 +149,10 @@ namespace StarSystemGurpsGen
 
                     return tmpRoll;
                 }
-                    
+
                 //else, roll for the new index.
                 rollA = velvetBag.gurpsRoll();
-                rollB = velvetBag.rng(rollA,6);
+                rollB = velvetBag.rng(rollA, 6);
 
 
                 //get the new index
@@ -154,14 +160,10 @@ namespace StarSystemGurpsGen
                 else currPos = currPos - rollB;
 
                 return Star.getMassByIndex(currPos);
-
             }
 
-            //the maximum mass is unset. Roll on the array.
-            rollA = velvetBag.gurpsRoll();
-            rollB = velvetBag.gurpsRoll();
+         
 
-            return Star.getMassByRoll(rollA, rollB);
         }
 
         /// <summary>
@@ -187,7 +189,7 @@ namespace StarSystemGurpsGen
             }
 
             //if we are in the white dwarf branch, reroll mass.
-            if (s.evoLine.findCurrentAgeGroup(s.starAge) == StarAgeLine.RET_DWARFBRANCH)
+            if (s.evoLine.findCurrentAgeGroup(s.starAge) == StarAgeLine.RET_COLLASPEDSTAR)
                 s.updateMass(ourDice.rollInRange(0.9, 1.4),true);
 
             //set the generic name
@@ -196,33 +198,58 @@ namespace StarSystemGurpsGen
             //initalize the luminosity first, then update it given the current age, status and mass.
             s.setLumin();
             s.currLumin = Star.getCurrLumin(s.evoLine, s.starAge, s.currMass);
-
-            //check if it's a white dwarf
-            if (s.evoLine.findCurrentAgeGroup(s.starAge) == StarAgeLine.RET_DWARFBRANCH)
-            {
-                s.updateLumin(.0043);
-            }
-           
+         
             //determine the temperature
             s.effTemp = Star.getInitTemp(s.currMass);
-            s.effTemp = Star.getCurrentTemp(s.evoLine, s.starAge, s.currMass, ourDice);
+            s.effTemp = Star.getCurrentTemp(s.evoLine, s.currLumin, s.starAge, s.currMass, ourDice);
             
 
             //DERIVED STATS: RADIUS, Spectral Type
             s.radius = Star.getRadius(s.currMass, s.effTemp, s.currLumin, s.evoLine.findCurrentAgeGroup(s.starAge));
-            s.setSpectralType(ourDice); 
+            s.setSpectralType();
+            s.starColor = Star.setColor(ourDice, s.effTemp);
 
-            //now we set if it's a flare star.
-            if (s.currMass >= 0.1 && s.currMass <= .5)
-            {
-                if (ourDice.gurpsRoll() >= 12)
-                    s.isFlareStar = true;
-            }
+            //set flare status.
+            libStarGen.setFlareStatus(s, ourDice);
+
            //end this here. We will hand orbital mechanics elsewhere.
 
         }
 
+        /// <summary>
+        /// This sets the flare status of a star
+        /// </summary>
+        /// <param name="s">The star we're setting for</param>
+        /// <param name="ourDice">The dice object we use.</param>
+        public static void setFlareStatus(Star s, Dice ourDice)
+        {
+            int roll = ourDice.gurpsRoll();
+            int limit = 12;
+            double massLimit = .45;
 
+            if (OptionCont.anyStarFlareStar) massLimit = 11;
+            if (OptionCont.moreFlareStarChance) limit = 9;
+
+            if (roll >= limit && s.currMass <= massLimit) s.isFlareStar = true;
+     
+
+        }
+
+        /// <summary>
+        /// A short hand copy for a comparison
+        /// </summary>
+        /// <param name="var">The variable being compared</param>
+        /// <param name="min">Minimum threshold</param>
+        /// <param name="max">Maximum Threshold</param>
+        /// <param name="canEqual">If it can equal the bounds. Set to true by default.</param>
+        /// <returns></returns>
+        public static bool inbetween(int var, int min, int max, bool canEqual = true)
+        {
+            if (canEqual)
+                return ((var >= min) && (var <= max));
+            else
+                return ((var > min) && (var < max));
+        }
 
         public static void gasGiantFlag(Star myStar, int roll){
             int noGasGiant = 10;
@@ -643,7 +670,12 @@ namespace StarSystemGurpsGen
             }
         }
 
-        public static void genStellarOrbitals(StarSystem ourSystem, Dice velvetBag)
+        /// <summary>
+        /// This places our stars around the primary, as well as creating the secondary stars if called for
+        /// </summary>
+        /// <param name="ourSystem">The star system to be added to.</param>
+        /// <param name="velvetBag">Our dice object.</param>
+        public static void placeOurStars(StarSystem ourSystem, Dice velvetBag)
         {
             int roll = 0;
 
@@ -770,6 +802,11 @@ namespace StarSystemGurpsGen
                 }
         }
 
+        /// <summary>
+        /// This function draws a table up of each star's distance from each other and from the primary
+        /// </summary>
+        /// <param name="stars">The stars in this solar system</param>
+        /// <returns>Returns a multidimensional array of distances (in doubles)</returns>
         public static double[,] genDistChart(List<Star> stars)
         {
             //first get distances of each star to the primary.

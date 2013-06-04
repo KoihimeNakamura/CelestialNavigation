@@ -45,7 +45,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.lblStar1 = new System.Windows.Forms.Label();
             this.lblSysAge = new System.Windows.Forms.Label();
-            this.btnAlterStar = new System.Windows.Forms.Button();
             this.btnOrbits1 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
@@ -178,17 +177,6 @@
             this.lblSysAge.TabIndex = 11;
             this.lblSysAge.Text = "System Age: Unset";
             // 
-            // btnAlterStar
-            // 
-            this.btnAlterStar.Location = new System.Drawing.Point(488, 62);
-            this.btnAlterStar.Name = "btnAlterStar";
-            this.btnAlterStar.Size = new System.Drawing.Size(94, 25);
-            this.btnAlterStar.TabIndex = 12;
-            this.btnAlterStar.Text = "Alter Star 1";
-            this.btnAlterStar.UseVisualStyleBackColor = true;
-            this.btnAlterStar.Visible = false;
-            this.btnAlterStar.Click += new System.EventHandler(this.button1_Click);
-            // 
             // btnOrbits1
             // 
             this.btnOrbits1.Location = new System.Drawing.Point(596, 62);
@@ -217,7 +205,6 @@
             this.ClientSize = new System.Drawing.Size(858, 617);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.btnOrbits1);
-            this.Controls.Add(this.btnAlterStar);
             this.Controls.Add(this.lblSysAge);
             this.Controls.Add(this.lblStar1);
             this.Controls.Add(this.label1);
@@ -228,6 +215,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "StarSystemGurpsGen";
             this.Text = "Celestial Navigation";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.StarSystemGurpsGen_FormClosed);
             this.Load += new System.EventHandler(this.StarSystemGurpsGen_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -253,7 +241,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblStar1;
         private System.Windows.Forms.Label lblSysAge;
-        private System.Windows.Forms.Button btnAlterStar;
         private System.Windows.Forms.Button btnOrbits1;
         private System.Windows.Forms.ToolStripMenuItem step3OutputToFileToolStripMenuItem;
         private System.Windows.Forms.Button button1;

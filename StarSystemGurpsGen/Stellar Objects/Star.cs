@@ -428,13 +428,21 @@ namespace StarSystemGurpsGen
                     return Star.getMaxLumin(mass);
             if (ageGroup == StarAgeLine.RET_GIANTBRANCH)
                 return Star.getMaxLumin(mass) * 10000; //IMPLEMENTED HOUSE RULE. Yeah. Uh.. Yeah.
-            if (ageGroup == StarAgeLine.RET_DWARFBRANCH)
-                return .0043;
+            if (ageGroup == StarAgeLine.RET_COLLASPEDSTAR)
+                return (1611047115.0 * mass * Math.Pow((ageL.getAgeFromCollapse(age) * 100000000),(-7.0 / 5.0))); //corrected from report.
 
             return 0;
         }
-
-        public static double getCurrentTemp(StarAgeLine ageL, double age, double mass, Dice ourDice)
+        /// <summary>
+        /// This updates the star to the current surface temperature given no alterations
+        /// </summary>
+        /// <param name="ageL">the age line of the star</param>
+        /// <param name="lumin">The current luminosity of the star (used for White Dwarfs)</param>
+        /// <param name="age">The age of the star</param>
+        /// <param name="mass">The current mass of the star</param>
+        /// <param name="ourDice">Dice (due to randomization of the temperature)</param>
+        /// <returns>The current temperature of the star</returns>
+        public static double getCurrentTemp(StarAgeLine ageL, double lumin, double age, double mass, Dice ourDice)
         {
             if (ageL.findCurrentAgeGroup(age) == StarAgeLine.RET_MAINBRANCH) 
                 return Star.getInitTemp(mass);
@@ -442,8 +450,8 @@ namespace StarSystemGurpsGen
                 return (Star.getInitTemp(mass) - ageL.calcWithInSubLimit(age) * (Star.getInitTemp(mass) - 4800));
             if (ageL.findCurrentAgeGroup(age) == StarAgeLine.RET_GIANTBRANCH)
                 return (3000 + ourDice.rng(2, 6, -2) * 200);
-            if (ageL.findCurrentAgeGroup(age) == StarAgeLine.RET_DWARFBRANCH)
-                return Star.WhiteDwarfTemp(mass, (age - ageL.getGiantLimit()));
+            if (ageL.findCurrentAgeGroup(age) == StarAgeLine.RET_COLLASPEDSTAR)
+                return Math.Pow((lumin / Math.Pow(Star.getRadius(mass,0,lumin,StarAgeLine.RET_COLLASPEDSTAR), 2)) * (5.38937375 * Math.Pow(10, 26)), 1 / 4);
 
             return 0;
         }
@@ -460,8 +468,8 @@ namespace StarSystemGurpsGen
             //set the maximum luminosity. Used for determining the formation zones if the star is in a few phases.
             if (currAgeGroup == StarAgeLine.RET_GIANTBRANCH)
                 this.maxLumin = this.currLumin;
-            
-            if (currAgeGroup == StarAgeLine.RET_DWARFBRANCH)
+
+            if (currAgeGroup == StarAgeLine.RET_COLLASPEDSTAR)
                 this.maxLumin = Star.getMinLumin(this.currMass) * 10000;
         }
 
@@ -499,13 +507,15 @@ namespace StarSystemGurpsGen
             if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_MAINBRANCH) return "Main Sequence";
             if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_SUBBRANCH) return "Subgiant Branch";
             if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_GIANTBRANCH) return "Asymptotic Giant Branch";
-            if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_DWARFBRANCH) return "White Dwarf";
+            if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_COLLASPEDSTAR) return "White Dwarf";
 
             return "INVALID STATUS";
         }
 
-
-        public virtual void setSpectralType(Dice ourDice)
+        /// <summary>
+        /// This sets the spectral type of our star.
+        /// </summary>
+        public virtual void setSpectralType()
         {
             if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_MAINBRANCH)
                 this.specType = Star.getStellarTypeFromMass(this.currMass) + " V";
@@ -517,18 +527,89 @@ namespace StarSystemGurpsGen
                 this.specType = Star.getStellarTypeFromTemp(this.currMass) + " II";
 
             //the fun one - white dwarf
-            if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_DWARFBRANCH)
+            if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_COLLASPEDSTAR)
             {
-                double surfTemp = 50400.0 / this.effTemp;
-                surfTemp = Math.Round(surfTemp, 1);
-                if (this.effTemp < 10) surfTemp = 10; //fixes a DBZ_INFINTY bug.
-
-                string[] types = {"DA","DAB","DAO","DAZ","DB","DBZ","DC","DQ","DZ","DO","DX"};
-
-                this.specType = types[ourDice.rng(1, 11, -1)] + surfTemp;
+                if (this.effTemp >= 1000)
+                    this.specType = "DA";
+                if (this.effTemp >= 300 && this.effTemp < 1000)
+                    this.specType = "DB";
+                if (this.effTemp < 300)
+                    this.specType = "DC";
             }
 
         }
+        
+
+        public static string setColor(Dice ourDice, double effTemp)
+        {
+
+            if (!OptionCont.fantasyColors)
+            {
+                if (effTemp >= 33000)
+                    return "Blue";
+                if (effTemp >= 10000 && effTemp < 33000)
+                    return "Blue-White";
+                if (effTemp >= 7500 && effTemp < 10000) 
+                    return "Whitish Blue";
+                if (effTemp >= 6000 && effTemp < 7500) 
+                    return "White";
+                if (effTemp >= 5200 && effTemp < 6000) 
+                    return "Yellow";
+                if (effTemp >= 4250 && effTemp < 5200) 
+                    return "Yellowish Orange";
+                if (effTemp >= 3700 && effTemp < 4250) 
+                    return "Orange";
+                if (effTemp >= 2000 && effTemp < 3700) 
+                    return "Orangish Red";
+                if (effTemp >= 1300 && effTemp < 2000) 
+                    return "Red";
+                if (effTemp >= 700 && effTemp < 1300) 
+                    return "Purplish Red";
+                if (effTemp >= 100 && effTemp < 700) 
+                    return "Brown";
+                if (effTemp < 100) 
+                    return "Black";
+            }
+            else
+            {
+                int roll = ourDice.rng(100019);
+                if (libStarGen.inbetween(roll, 0, 10)) 
+                    return "Black";
+                if (libStarGen.inbetween(roll, 11, 531))
+                    return "Green";
+                if (libStarGen.inbetween(roll, 532, 952))
+                    return "Yellow-Green";
+                if (libStarGen.inbetween(roll, 953, 6057))
+                    return "Red-Orange";
+                if (libStarGen.inbetween(roll, 6058, 6835))
+                    return "Blue";
+                if (libStarGen.inbetween(roll, 6836, 11940))
+                    return "Purple-Red";
+                if (libStarGen.inbetween(roll, 11941, 23948))
+                    return "Red";
+                if (libStarGen.inbetween(roll, 23949, 49960))
+                    return "Yellow";
+                if (libStarGen.inbetween(roll, 49961, 75972))
+                    return "Orange";
+                if (libStarGen.inbetween(roll, 75973, 87980))
+                    return "Yellow-Orange";
+                if (libStarGen.inbetween(roll, 87981, 93085))
+                    return "Blue-White";
+                if (libStarGen.inbetween(roll, 93086, 93763))
+                    return "White";
+                if (libStarGen.inbetween(roll, 93764, 98868))
+                    return "White-Blue";
+                if (libStarGen.inbetween(roll, 98869, 99289))
+                    return "Green-Blue";
+                if (libStarGen.inbetween(roll, 99290, 99710))
+                    return "Blue-Violet";
+                if (libStarGen.inbetween(roll, 99711, 100019))
+                    return "Purple";
+            }
+
+            return "ERROR";
+        }
+
 
         public virtual bool testInitlizationZones()
         {
@@ -620,12 +701,12 @@ namespace StarSystemGurpsGen
             if (this.selfID != IS_PRIMARY)
             {
                 desc = intro + " " + this.currMass + " solar masses, " + Math.Round(this.currLumin, OptionCont.numberOfDecimal) + " solar luminosities. Eff Temp: " + this.effTemp + "K, apparent color ";
-                desc += Star.getColor(this.effTemp) + ". This star orbits " + Star.getDescOrderFlag(this.parentID) + " at " + this.orbitalRadius + "AU out with an eccentricity of " + this.orbitalEccent;
+                desc += this.starColor + ". This star orbits " + Star.getDescOrderFlag(this.parentID) + " at " + this.orbitalRadius + "AU out with an eccentricity of " + this.orbitalEccent;
             }
             else
             {
                 desc = intro + " " + this.currMass + " solar masses, " + Math.Round(this.currLumin, OptionCont.numberOfDecimal) + " solar luminosities. Eff Temp: " + this.effTemp + "K, apparent color ";
-                desc += Star.getColor(this.effTemp);
+                desc += this.starColor;
             }
 
             return desc;
@@ -639,8 +720,8 @@ namespace StarSystemGurpsGen
             ret = ret + nL + "This star has " + this.currMass + " solar masses, and a current luminosity of " + Math.Round(this.currLumin,OptionCont.numberOfDecimal);
             ret = ret + nL + "solar luminosities. It has a surface temperature of " + Math.Round(this.effTemp,OptionCont.numberOfDecimal) + "K.";
             ret = ret + nL + "This star's radius is " + Math.Round(this.getRadiusAU(),OptionCont.numberOfDecimal) + " AU.";
-            ret = ret + nL + "Apparent Color : " + Star.getColor(this.effTemp);
-
+            ret = ret + nL + "Apparent Color : " + this.starColor;
+            
             if (OptionCont.getVerboseOutput())
             {
                 ret = ret + Environment.NewLine;
@@ -763,6 +844,15 @@ namespace StarSystemGurpsGen
             if (flag == Star.IS_TRICOMP) return "Trinary Companion";
 
             return "[ERROR]";
+        }
+
+        /// <summary>
+        /// This returns the current branch description for this star
+        /// </summary>
+        /// <returns>A string containing the branch description</returns>
+        public string returnCurrentBranchDesc()
+        {
+            return StarAgeLine.descBranch(this.evoLine.findCurrentAgeGroup(this.starAge));
         }
 
         public void giveOrbitalsOrder(ref int totalOrbitals)

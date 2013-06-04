@@ -121,7 +121,7 @@ namespace StarSystemGurpsGen
         //TODO: Implement
 
         /// <summary>
-        /// By GURPS Space (p128) only M-class stars (<.45 solar masses) can be flare stars. This setting makes ANY star be a flare star
+        /// By GURPS Space (p128) only M-class stars (under .45 solar masses) can be flare stars. This setting makes ANY star be a flare star
         /// </summary>
         /// <remarks>
         /// It is not recommended you enable this and the other flare star option.
