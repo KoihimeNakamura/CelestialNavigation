@@ -57,6 +57,7 @@
             this.btnGenPlanets.TabIndex = 1;
             this.btnGenPlanets.Text = "Generate Planets";
             this.btnGenPlanets.UseVisualStyleBackColor = true;
+            this.btnGenPlanets.Click += new System.EventHandler(this.btnGenPlanets_Click);
             // 
             // dgvStars
             // 

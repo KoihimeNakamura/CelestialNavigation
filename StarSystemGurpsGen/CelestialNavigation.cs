@@ -34,9 +34,14 @@ namespace StarSystemGurpsGen
         private DataTable starTable { get; set; }
 
         /// <summary>
-        /// This is used to tell the parent form we're done with star generation
+        /// This is used to tell the parent form (this form) we're done with star generation
         /// </summary>
         public bool createStarsFinished { get; set; }
+
+        /// <summary>
+        /// This is used to tell the parent form (this form) we're done with planet generation.
+        /// </summary>
+        public bool createPlanetsFinished { get; set; }
 
         /// <summary>
         /// Constructor for the form object.
@@ -134,6 +139,11 @@ namespace StarSystemGurpsGen
                 lblSysAge.Text = this.ourSystem.sysAge + " GYr";
                 lblSysName.Text = this.ourSystem.sysName;
             }
+        }
+
+        private void btnGenPlanets_Click(object sender, EventArgs e)
+        {
+
         }
 
     }

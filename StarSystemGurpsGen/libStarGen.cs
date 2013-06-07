@@ -251,11 +251,33 @@ namespace StarSystemGurpsGen
                 return ((var > min) && (var < max));
         }
 
+        /// <summary>
+        /// This picks the gas giant flag for a star.
+        /// </summary>
+        /// <param name="myStar">The star we're setting for</param>
+        /// <param name="roll">The dice roll</param>
         public static void gasGiantFlag(Star myStar, int roll){
-            int noGasGiant = 10;
-            int conGaGiant = 12;
-            int eccGaGiant = 14;
-            int epiGaGiant = 18;
+            
+            //base set.
+            int noGasGiant = 0;
+            int conGaGiant = 0;
+            int eccGaGiant = 0;
+            int epiGaGiant = 0;
+
+            if (!OptionCont.moreConGasGiantChances)
+            {
+                noGasGiant = 10;
+                conGaGiant = 12;
+                eccGaGiant = 14;
+                epiGaGiant = 18;
+            }
+            else
+            {
+                noGasGiant = 6;
+                conGaGiant = 13;
+                eccGaGiant = 15;
+                epiGaGiant = 18;
+            }
 
             if (roll <= noGasGiant)
                 myStar.gasGiantFlag = Star.GASGIANT_NONE;
@@ -342,7 +364,13 @@ namespace StarSystemGurpsGen
 
         }
 
-        //also determines RVM! (because I might as well.)
+        /// <summary>
+        /// Determines RVM, and geologic values for a satelite
+        /// </summary>
+        /// <param name="s">The satelite</param>
+        /// <param name="ourBag">Dice object</param>
+        /// <param name="sysAge">System Age</param>
+        /// <param name="isGasGiantMoon">Is this a moon of a gas giant?</param>
         public static void determineGeologicValues(Satellite s, Dice ourBag, double sysAge, bool isGasGiantMoon)
         {
             //volcanic set first.
@@ -408,7 +436,7 @@ namespace StarSystemGurpsGen
 
             //update RVM
             if (!OptionCont.highRVMVal) roll = ourBag.gurpsRoll();
-            if (OptionCont.highRVMVal) roll = ourBag.rng(1, 8, 8);
+            if (OptionCont.highRVMVal) roll = ourBag.rng(1, 6, 10);
 
             if (s.volActivity == Satellite.GEOLOGIC_NONE) roll = roll - 2;
             if (s.volActivity == Satellite.GEOLOGIC_LIGHT) roll = roll - 1;
@@ -423,7 +451,8 @@ namespace StarSystemGurpsGen
             }
 
             //set stable activity here:
-            if (OptionCont.stableActivity)
+            if (OptionCont.stableActivity && s.SatelliteSize >= Satellite.SIZE_SMALL && 
+                (s.baseType == Satellite.BASETYPE_MOON || s.baseType == Satellite.BASETYPE_TERRESTIAL))
             {
                 s.volActivity = Satellite.GEOLOGIC_MODERATE;
                 s.tecActivity = Satellite.GEOLOGIC_MODERATE;
@@ -433,6 +462,11 @@ namespace StarSystemGurpsGen
 
         }
 
+        /// <summary>
+        /// Updates a satellite for tidal lock
+        /// </summary>
+        /// <param name="s">The satelite </param>
+        /// <param name="ourBag">Our dice object</param>
         public static void updateTidalLock(Satellite s, Dice ourBag)
         {
             int atmDesc = s.getAtmCategory();
@@ -525,6 +559,11 @@ namespace StarSystemGurpsGen
 
         }
 
+        /// <summary>
+        /// Rolls the gas giant size and updates it.
+        /// </summary>
+        /// <param name="s">The gas gaint we are editing</param>
+        /// <param name="roll">The dice roll</param>
         public static void updateGasGiantSize(Satellite s, int roll)
         {
             if (roll <= 10) s.updateSize(Satellite.SIZE_SMALL);
@@ -532,6 +571,11 @@ namespace StarSystemGurpsGen
             if (roll >= 17) s.updateSize(Satellite.SIZE_LARGE);
         }
 
+        /// <summary>
+        /// Populates orbits around a star, according to GURPS 4e rules. (Does not create them)
+        /// </summary>
+        /// <param name="s">The star we're populating around</param>
+        /// <param name="myDice">Our dice object.</param>
         public static void populateOrbits(Star s, Dice myDice)
         {
 
@@ -930,7 +974,12 @@ namespace StarSystemGurpsGen
         }
 
 
-
+        /// <summary>
+        /// This function creates planets. (durr hurr). Only invoke after you've deteremined the orbitals.
+        /// </summary>
+        /// <param name="ourSystem">The star system we are creating for</param>
+        /// <param name="ourPlanets">The orbitals we've created</param>
+        /// <param name="velvetBag">Our dice object</param>
         public static void createPlanets(StarSystem ourSystem, List<Satellite> ourPlanets, Dice velvetBag)
         {
             double[,] distanceTable = genDistChart(ourSystem.sysStars);
@@ -954,7 +1003,7 @@ namespace StarSystemGurpsGen
                 s.genWorldType(ourSystem.maxMass, ourSystem.sysAge, velvetBag);
 
                 s.genDensity(velvetBag);
-                s.genDiameter(velvetBag);
+                s.genPhysicalParameters(velvetBag);
                 s.setClimateData(ourSystem.maxMass, velvetBag);
                 s.detSurfaceTemp(0);
                 if (!(s.baseType == Satellite.BASETYPE_GASGIANT)) s.calcAtmPres();
@@ -1019,7 +1068,7 @@ namespace StarSystemGurpsGen
                         }
 
                         moon.genDensity(velvetBag);
-                        moon.genDiameter(velvetBag);
+                        moon.genPhysicalParameters(velvetBag);
                         moon.setClimateData(ourSystem.maxMass, velvetBag);
                         moon.detSurfaceTemp(different);
                         moon.calcAtmPres();

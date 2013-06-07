@@ -25,6 +25,9 @@ namespace StarSystemGurpsGen
         /// </summary>
         public Dice velvetBag { get; set; }
 
+        /// <summary>
+        /// Parent object, used to pass to the main thing when we're done successfully.
+        /// </summary>
         private CelestialNavigation parent { get; set; }
 
         /// <summary>
@@ -131,6 +134,7 @@ namespace StarSystemGurpsGen
             OptionCont.forceGardenFavorable = chkForceGarden.Checked;
             OptionCont.inOpenCluster = chkOpenCluster.Checked;
             OptionCont.setVerboseOutput(chkVerbose.Checked);
+            OptionCont.ensureOneOrbit = chkForceOneOrbit.Checked;
 
             //set age, or clear age. 
             if (chkAgeOverride.Checked)

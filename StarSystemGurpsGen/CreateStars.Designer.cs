@@ -56,6 +56,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.txtSysName = new System.Windows.Forms.TextBox();
             this.btnRandomName = new System.Windows.Forms.Button();
+            this.chkForceOneOrbit = new System.Windows.Forms.CheckBox();
             this.pnlSystem.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numAge)).BeginInit();
             this.panel1.SuspendLayout();
@@ -76,6 +77,7 @@
             // 
             // pnlSystem
             // 
+            this.pnlSystem.Controls.Add(this.chkForceOneOrbit);
             this.pnlSystem.Controls.Add(this.lblAgeYear);
             this.pnlSystem.Controls.Add(this.numAge);
             this.pnlSystem.Controls.Add(this.chkAgeOverride);
@@ -400,6 +402,16 @@
             this.btnRandomName.UseVisualStyleBackColor = true;
             this.btnRandomName.Click += new System.EventHandler(this.btnRandomName_Click);
             // 
+            // chkForceOneOrbit
+            // 
+            this.chkForceOneOrbit.AutoSize = true;
+            this.chkForceOneOrbit.Location = new System.Drawing.Point(14, 126);
+            this.chkForceOneOrbit.Name = "chkForceOneOrbit";
+            this.chkForceOneOrbit.Size = new System.Drawing.Size(180, 17);
+            this.chkForceOneOrbit.TabIndex = 7;
+            this.chkForceOneOrbit.Text = "Ensure a Minimum of One Planet";
+            this.chkForceOneOrbit.UseVisualStyleBackColor = true;
+            // 
             // CreateStars
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -457,5 +469,6 @@
         private System.Windows.Forms.TextBox txtSysName;
         private System.Windows.Forms.Button btnRandomName;
         private System.Windows.Forms.CheckBox chkBypassRules;
+        private System.Windows.Forms.CheckBox chkForceOneOrbit;
     }
 }

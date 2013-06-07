@@ -457,68 +457,6 @@ namespace StarSystemGurpsGen
                  }
              }
 
-             /* 
-             int lblHeight = 67;
-             int btnLeft = 596;
-             int currHeight = 128;
-             int spacing = 10;
-             int btnHeight = 25;
-
-             foreach (Star s in mySystem.sysStars)
-             {
-                 if (s.selfID == Star.IS_SECONDARY)
-                 {
-                     Button btnOrbits2 = new System.Windows.Forms.Button();
-                     btnOrbits2.Location = new System.Drawing.Point(btnLeft, currHeight);
-                     btnOrbits2.Name = "btnOrbits2";
-                     btnOrbits2.Size = new System.Drawing.Size(93, btnHeight);
-                     btnOrbits2.Visible = true;
-                     btnOrbits2.Text = "Display Orbits 2";
-                     btnOrbits2.Click += new System.EventHandler(this.btnOrbits_Click);
-                     this.Controls.Add(btnOrbits2);
-                     currHeight += lblHeight + spacing;
-                 }
-
-                 if (s.selfID == Star.IS_SECCOMP)
-                 {
-                     Button btnOrbits2Sub = new System.Windows.Forms.Button();
-                     btnOrbits2Sub.Location = new System.Drawing.Point(btnLeft, currHeight);
-                     btnOrbits2Sub.Name = "btnOrbits2sub";
-                     btnOrbits2Sub.Size = new System.Drawing.Size(93, btnHeight);
-                     btnOrbits2Sub.Visible = true;
-                     btnOrbits2Sub.Text = "Display Orbits 2 Sub";
-                     btnOrbits2Sub.Click += new System.EventHandler(this.btnOrbits_Click);
-                     this.Controls.Add(btnOrbits2Sub);
-                     currHeight += lblHeight + spacing;
-                 }
-
-                 if (s.selfID == Star.IS_TRINARY)
-                 {
-                     Button btnOrbits3 = new System.Windows.Forms.Button();
-                     btnOrbits3.Location = new System.Drawing.Point(btnLeft, currHeight);
-                     btnOrbits3.Name = "btnOrbits3";
-                     btnOrbits3.Size = new System.Drawing.Size(93, btnHeight);
-                     btnOrbits3.Visible = true;
-                     btnOrbits3.Text = "Display Orbits 3";
-                     btnOrbits3.Click += new System.EventHandler(this.btnOrbits_Click);
-                     this.Controls.Add(btnOrbits3);
-                     currHeight += lblHeight + spacing;
-                 }
-
-                 if (s.selfID == Star.IS_TRICOMP)
-                 {
-                     Button btnOrbits3Sub = new System.Windows.Forms.Button();
-                     btnOrbits3Sub.Location = new System.Drawing.Point(btnLeft, currHeight);
-                     btnOrbits3Sub.Name = "btnOrbits3Sub";
-                     btnOrbits3Sub.Size = new System.Drawing.Size(93, btnHeight);
-                     btnOrbits3Sub.Visible = true;
-                     btnOrbits3Sub.Text = "Display Orbits 3 Sub";
-                     btnOrbits3Sub.Click += new System.EventHandler(this.btnOrbits_Click);
-                     this.Controls.Add(btnOrbits3Sub);
-                     currHeight += lblHeight + spacing;
-                 }
-             } */
-
              for (int currStar = 0; currStar < this.mySystem.sysStars.Count; currStar++)
              {
                  double[,] distChart = libStarGen.genDistChart(this.mySystem.sysStars);

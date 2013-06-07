@@ -80,6 +80,12 @@
     <Compile Include="CelestialNavigation.Designer.cs">
       <DependentUpon>CelestialNavigation.cs</DependentUpon>
     </Compile>
+    <Compile Include="CreatePlanets.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreatePlanets.Designer.cs">
+      <DependentUpon>CreatePlanets.cs</DependentUpon>
+    </Compile>
     <Compile Include="CreateStars.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -134,6 +140,9 @@
     <Compile Include="Utility Classes\TimeLine.cs" />
     <EmbeddedResource Include="CelestialNavigation.resx">
       <DependentUpon>CelestialNavigation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CreatePlanets.resx">
+      <DependentUpon>CreatePlanets.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CreateStars.resx">
       <DependentUpon>CreateStars.cs</DependentUpon>
