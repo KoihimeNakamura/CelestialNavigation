@@ -41,8 +41,8 @@ namespace StarSystemGurpsGen
         public override String ToString()
         {
             String ret = "This clean zone is from " + this.lowerBound + " to " + this.upperBound + " AU";
-            ret = ret + Environment.NewLine + "    " + " with ownership " + Star.getDescOrderFlag(this.ownershipFlag) + " and ";
-            ret = ret + "orbit desc of " + Star.getDescOrderFlag(this.orbitDesc);
+            ret = ret + Environment.NewLine + "    " + " with ownership " + Star.getDescSelfFlag(this.ownershipFlag) + " and ";
+            ret = ret + "orbit desc of " + Star.getDescSelfFlag(this.orbitDesc);
 
             return ret;
         }

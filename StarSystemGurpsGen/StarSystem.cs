@@ -142,7 +142,11 @@ namespace StarSystemGurpsGen
             return roll;
         }
 
-
+        /// <summary>
+        /// Gets the population from the age
+        /// </summary>
+        /// <param name="age">The age</param>
+        /// <returns>The age description</returns>
         public static String getPopulationFromAge(double age)
         {
             if (age >= .01 && age < .1) return "Extreme Population I";
@@ -155,9 +159,41 @@ namespace StarSystemGurpsGen
             return "???";
         }
 
+        /// <summary>
+        /// This counts the number of stars in this solar system.
+        /// </summary>
+        /// <returns>Returns an integer of the number of stars</returns>
         public int countStars()
         {
             return this.sysStars.Count;
         }
+
+        /// <summary>
+        /// This counts the total number of planets in this solar system
+        /// </summary>
+        /// <returns>Returns an integer of the number of planets</returns>
+        public int countPlanets()
+        {
+            int totalPlanets = 0;
+
+            for (int i = 0; i < this.sysStars.Count; i++)
+            {
+                totalPlanets += this.sysStars[i].sysPlanets.Count;
+            }
+
+            return totalPlanets;
+        }
+
+        /// <summary>
+        /// Clears all planets withotu removing the stars.
+        /// </summary>
+        public void clearPlanets()
+        {
+            foreach (Star s in this.sysStars)
+            {
+                s.sysPlanets.Clear();
+            }
+        }
+
     }
 }

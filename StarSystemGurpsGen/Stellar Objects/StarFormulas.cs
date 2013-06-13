@@ -366,7 +366,12 @@ namespace StarSystemGurpsGen
             return "GAS GIANT ERROR";
         }
 
-        public static string getDescOrderFlag(int flag)
+        /// <summary>
+        /// Describes the self flag.
+        /// </summary>
+        /// <param name="flag">The self ID of the star</param>
+        /// <returns>The string of the self ID</returns>
+        public static string getDescSelfFlag(int flag)
         {
             if (flag == Star.IS_PRIMARY)
                 return "Primary star";

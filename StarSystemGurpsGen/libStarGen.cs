@@ -86,7 +86,7 @@ namespace StarSystemGurpsGen
                     ourSystem.addStar(Star.IS_PRIMARY, Star.IS_PRIMARY, i);
 
                     //manually set the first star's mass and push it to the max mass setting
-                    ourSystem.sysStars[0].updateMass(libStarGen.rollStellarMass(ourBag));
+                    ourSystem.sysStars[0].updateMass(libStarGen.rollStellarMass(ourBag, Star.IS_PRIMARY));
                     ourSystem.maxMass = ourSystem.sysStars[0].currMass;
 
                     //generate the star
@@ -105,6 +105,9 @@ namespace StarSystemGurpsGen
                     //generate the star
                     libStarGen.generateAStar(ourSystem.sysStars[i], ourBag, ourSystem.maxMass, ourSystem.sysName);
                 }
+
+                libStarGen.gasGiantFlag(ourSystem.sysStars[i], ourBag.gurpsRoll());
+
             }
 
             //now generate orbitals
@@ -119,9 +122,10 @@ namespace StarSystemGurpsGen
         /// This function rolls for mass on a star.
         /// </summary>
         /// <param name="velvetBag">The dice object</param>
+        /// <param name="orderID">The order ID of the star</param>
         /// <param name="maxMass">the maximum mass. Has a default value of 0.0, indicating no max mass (may be left out)</param>
         /// <returns>The rolled mass of a star</returns>
-        public static double rollStellarMass(Dice velvetBag, double maxMass = 0.0)
+        public static double rollStellarMass(Dice velvetBag, int orderID, double maxMass = 0.0)
         {
             int rollA, rollB; //roll integers
             double tmpRoll; //test value.
@@ -129,9 +133,26 @@ namespace StarSystemGurpsGen
             if (maxMass == 0.0)
             {
                 if (!OptionCont.stellarMassRangeSet)
-                    return Star.getMassByRoll(velvetBag.gurpsRoll(), velvetBag.gurpsRoll());
+                {
+                    if (orderID == Star.IS_PRIMARY && OptionCont.forceGardenFavorable)
+                    {
+                        rollA = velvetBag.rng(6);
+                        if (rollA == 1) rollA = 5;
+                        if (rollA == 2) rollA = 6;
+                        if (rollA == 3 || rollA == 4) rollA = 7;
+                        if (rollA == 5 || rollA == 6) rollA = 8;
+
+                        return Star.getMassByRoll(rollA, velvetBag.gurpsRoll());
+                    }
+                    else
+                    {
+                        return Star.getMassByRoll(velvetBag.gurpsRoll(), velvetBag.gurpsRoll());
+                    }
+                }
                 else
+                {
                     return velvetBag.rollInRange(OptionCont.minStellarMass, OptionCont.maxStellarMass);
+                }
             }
 
             else
@@ -180,12 +201,12 @@ namespace StarSystemGurpsGen
             {
                 if (s.orderID == Star.IS_PRIMARY)
                 {
-                    s.updateMass(libStarGen.rollStellarMass(ourDice));
+                    s.updateMass(libStarGen.rollStellarMass(ourDice, s.orderID));
                     maxMass = s.currMass;
                 }
                 
                 else 
-                    s.updateMass(libStarGen.rollStellarMass(ourDice, maxMass));
+                    s.updateMass(libStarGen.rollStellarMass(ourDice, s.orderID, maxMass));
             }
 
             //if we are in the white dwarf branch, reroll mass.
@@ -289,6 +310,11 @@ namespace StarSystemGurpsGen
                 myStar.gasGiantFlag = Star.GASGIANT_EPISTELLAR;
         }
 
+        /// <summary>
+        /// deteremine the orbital ratio between planets
+        /// </summary>
+        /// <param name="myDice">Dice object</param>
+        /// <returns>The orbital ratio between planets</returns>
         public static double getOrbitalRatio(Dice myDice)
         {
             double ratio = 0;
@@ -695,6 +721,9 @@ namespace StarSystemGurpsGen
                             if (roll >= 14 && roll <= 15) s.sysPlanets[i].updateSize(Satellite.SIZE_MEDIUM);
                             if (roll >= 16) s.sysPlanets[i].updateSize(Satellite.SIZE_LARGE);
                         }
+
+                        else
+                            s.sysPlanets[i].updateSize(Satellite.SIZE_SMALL); //fixes a recursion bug.
                     }
 
                     if (mod >= 7 && mod <= 8)
@@ -712,6 +741,60 @@ namespace StarSystemGurpsGen
 
             
             }
+        }
+
+
+        //libStarGen.convertTemp("kelvin", "celsius", pl.surfaceTemp) + "C)";
+
+        /// <summary>
+        /// Generic convert temperature function
+        /// </summary>
+        /// <param name="source">The temperature type ("kelvin", "celsius", "farenheit")</param>
+        /// <param name="destination">The temperature type ("kelvin", "celsius", "farenheit")</param>
+        /// <param name="sourceTemp">The temperature</param>
+        /// <returns></returns>
+        public static double convertTemp(string source, string destination, double sourceTemp)
+        {
+            if (source == "kelvin")
+            {
+                if (destination == "celsius")
+                {
+                    return (sourceTemp - 273.15);
+                }
+
+                if (destination == "farenheit")
+                {
+                    return (((sourceTemp - 273.15) * 1.8) + 32.0);
+                }
+            }
+
+            if (source == "celsius")
+            {
+                if (destination == "kelvin")
+                {
+                    return (sourceTemp + 273.15);
+                }
+
+                if (destination == "farenheit")
+                {
+                    return ((sourceTemp * 1.8) + 32.0);
+                }
+            }
+
+            if (source == "farenheit")
+            {
+                if (destination == "celsius")
+                {
+                    return ((sourceTemp - 32.0) / 1.8);
+                }
+
+                if (destination == "kelvin")
+                {
+                    return (((sourceTemp - 32.0) / 1.8) + 273.15);
+                }
+            }
+
+            return -9999.9;
         }
 
         /// <summary>

@@ -112,19 +112,7 @@
     <Compile Include="StarAlter.Designer.cs">
       <DependentUpon>StarAlter.cs</DependentUpon>
     </Compile>
-    <Compile Include="StarOptions.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="StarOptions.Designer.cs">
-      <DependentUpon>StarOptions.cs</DependentUpon>
-    </Compile>
     <Compile Include="StarSystem.cs" />
-    <Compile Include="StarSystemGurpsGen.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="StarSystemGurpsGen.Designer.cs">
-      <DependentUpon>StarSystemGurpsGen.cs</DependentUpon>
-    </Compile>
     <Compile Include="Stellar Objects\Moonlet.cs" />
     <Compile Include="Stellar Objects\Orbital.cs" />
     <Compile Include="Stellar Objects\Satelite.cs" />
@@ -161,12 +149,6 @@
     </Compile>
     <EmbeddedResource Include="StarAlter.resx">
       <DependentUpon>StarAlter.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="StarOptions.resx">
-      <DependentUpon>StarOptions.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="StarSystemGurpsGen.resx">
-      <DependentUpon>StarSystemGurpsGen.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\DataSources\Satelite.datasource" />
     <None Include="Properties\DataSources\Star.datasource" />

@@ -401,6 +401,7 @@ namespace StarSystemGurpsGen
             if (!isWhiteDwarf) this.initMass = mass;
         }
 
+
         /// <summary>
         /// Sets the order of this star
         /// </summary>
@@ -701,7 +702,7 @@ namespace StarSystemGurpsGen
             if (this.selfID != IS_PRIMARY)
             {
                 desc = intro + " " + this.currMass + " solar masses, " + Math.Round(this.currLumin, OptionCont.numberOfDecimal) + " solar luminosities. Eff Temp: " + this.effTemp + "K, apparent color ";
-                desc += this.starColor + ". This star orbits " + Star.getDescOrderFlag(this.parentID) + " at " + this.orbitalRadius + "AU out with an eccentricity of " + this.orbitalEccent;
+                desc += this.starColor + ". This star orbits " + Star.getDescSelfFlag(this.parentID) + " at " + this.orbitalRadius + "AU out with an eccentricity of " + this.orbitalEccent;
             }
             else
             {
@@ -741,7 +742,7 @@ namespace StarSystemGurpsGen
 
             if (OptionCont.getVerboseOutput())
             {
-                ret = ret + nL + "Self ID: " + Star.getDescOrderFlag(this.selfID) + " and Parent ID: " + Star.getDescOrderFlag(this.parentID);
+                ret = ret + nL + "Self ID: " + Star.getDescSelfFlag(this.selfID) + " and Parent ID: " + Star.getDescSelfFlag(this.parentID);
                 ret = ret + nL;
             }
 

@@ -51,6 +51,11 @@ namespace StarSystemGurpsGen
         /// </summary>
         readonly public static int ERROR_GENERIC = -7;
 
+        /// <summary>
+        /// The amount of gravity on Earth.
+        /// </summary>
+        readonly public static double GFORCE = 9.80665;
+
         // owner flags.
         // we use the star ids when it's just one star, though.
         readonly public static int ORBIT_PRISEC = 9102; //primary and secondary
@@ -114,11 +119,13 @@ namespace StarSystemGurpsGen
         readonly public static int ATM_COND_CORROSIVE = ATM_BASE_COND + 0;
         readonly public static int ATM_COND_SUFFOCATING = ATM_BASE_COND + 1;
         readonly public static int ATM_COND_FLAMP1 = ATM_BASE_COND + 2;
+
         //the following are [Toxic]
         readonly public static int ATM_BASE_TOXIC = 340;
         readonly public static int ATM_TOXIC_MILDLY = ATM_BASE_TOXIC + 0;
         readonly public static int ATM_TOXIC_HIGHLY = ATM_BASE_TOXIC + 1;
         readonly public static int ATM_TOXIC_LETHALLY = ATM_BASE_TOXIC + 2;
+
         // the following are [Marginal].
         readonly public static int ATM_BASE_MARGINAL = 350;
         readonly public static int ATM_MARG_INERT = ATM_BASE_MARGINAL + 0;
@@ -132,10 +139,24 @@ namespace StarSystemGurpsGen
         readonly public static int ATM_MARG_POLLUTANTS = ATM_BASE_MARGINAL + 8;
         readonly public static int ATM_MARG_HIGHCO2 = ATM_BASE_MARGINAL + 9;
 
+        /// <summary>
+        /// This flag stores the count of marginal flags. If you add one, please increment this.
+        /// </summary>
+        readonly protected static int MARGINAL_INCREMENT = 10;
+
+        /// <summary>
+        /// This flag stors the count of conditional flags. If you add one, please increment this
+        /// </summary>
+        readonly protected static int COND_INCREMENT = 3;
+
+        /// <summary>
+        /// This flag stores the count of toxicity flags.
+        /// </summary>
+        readonly protected static int TOXIC_INCREMENT = 3;
+
         // range flags
         // used to calc further down (can be altered at will)
         readonly public static int RNG_ATMTOXIC = 3;
-        readonly public static int RNG_ATMMARG = 10;
 
         // geologic flags
         // used for both tectonic and heavy actvitiy.
@@ -415,7 +436,7 @@ namespace StarSystemGurpsGen
                     if (currAtmNote == ATM_COND_CORROSIVE) 
                         mod = mod - 1;
 
-                    if (currAtmNote >= ATM_BASE_MARGINAL && currAtmNote < (ATM_BASE_MARGINAL + RNG_ATMMARG))
+                    if (currAtmNote >= ATM_BASE_MARGINAL && currAtmNote < (ATM_BASE_MARGINAL + MARGINAL_INCREMENT))
                         isMarginal = true;
                 }
             }
@@ -1406,6 +1427,7 @@ namespace StarSystemGurpsGen
                 throw new Exception("You cannot have Tiny Gas Giants");
 
             this.SatelliteSize = flag;
+            this.SatelliteSize = this.SatelliteSize;
         }
         
         /// <summary>
@@ -1550,6 +1572,9 @@ namespace StarSystemGurpsGen
                 return "Moon";
             if (this.baseType == Satellite.BASETYPE_UNSET)
                 return "Unset";
+            if (this.baseType == Satellite.BASETYPE_GASGIANT)
+                return "Gas Giant";
+
             return "???";
 
         }
@@ -1618,6 +1643,7 @@ namespace StarSystemGurpsGen
                 if (this.SatelliteSize == Satellite.SIZE_SMALL) return "Small";
                 if (this.SatelliteSize == Satellite.SIZE_MEDIUM) return "Standard";
                 if (this.SatelliteSize == Satellite.SIZE_LARGE) return "Large";
+                return "???";
             }
 
             if (this.baseType == Satellite.BASETYPE_GASGIANT)
@@ -1625,6 +1651,7 @@ namespace StarSystemGurpsGen
                 if (this.SatelliteSize == Satellite.SIZE_SMALL) return "Small";
                 if (this.SatelliteSize == Satellite.SIZE_MEDIUM) return "Medium";
                 if (this.SatelliteSize == Satellite.SIZE_LARGE) return "Large";
+                return "???";
             }
 
             if (this.baseType == Satellite.BASETYPE_ASTEROIDBELT)
@@ -1633,6 +1660,12 @@ namespace StarSystemGurpsGen
                 if (this.SatelliteSize == Satellite.SIZE_SMALL) return "Light";
                 if (this.SatelliteSize == Satellite.SIZE_MEDIUM) return "Moderate";
                 if (this.SatelliteSize == Satellite.SIZE_LARGE) return "Dense";
+                return "???";
+            }
+
+            if (this.baseType == Satellite.BASETYPE_EMPTY)
+            {
+                return "";
             }
 
             return "???";
@@ -1652,6 +1685,7 @@ namespace StarSystemGurpsGen
                 if (flag == Satellite.SIZE_SMALL) return "Small";
                 if (flag == Satellite.SIZE_MEDIUM) return "Standard";
                 if (flag == Satellite.SIZE_LARGE) return "Large";
+                return "???";
             }
 
             if (baseType == Satellite.BASETYPE_GASGIANT)
@@ -1659,6 +1693,7 @@ namespace StarSystemGurpsGen
                 if (flag == Satellite.SIZE_SMALL) return "Small";
                 if (flag == Satellite.SIZE_MEDIUM) return "Medium";
                 if (flag == Satellite.SIZE_LARGE) return "Large";
+                return "???";
             }
 
             if (baseType == Satellite.BASETYPE_ASTEROIDBELT)
@@ -1667,22 +1702,36 @@ namespace StarSystemGurpsGen
                 if (flag == Satellite.SIZE_SMALL) return "Light";
                 if (flag == Satellite.SIZE_MEDIUM) return "Moderate";
                 if (flag == Satellite.SIZE_LARGE) return "Dense";
+                return "???";
             }
 
             return "???";
         }
 
+        /// <summary>
+        /// Returns the planetary diameter in KM, rather than Earth diameters
+        /// </summary>
+        /// <returns>double diameter in KM</returns>
+        public virtual double diameterInKM()
+        {
+            return this.diameter * 12756;
+        }
+
+        public virtual string descCurrentClimate()
+        {
+            return this.getClimateDesc(this.getClimate(this.surfaceTemp));
+        }
 
         /// <summary>
         /// This describes the climate given a flag.
         /// </summary>
         /// <param name="climate">The climate flag</param>
         /// <returns>The description (a string) of this climate</returns>
-        protected virtual string getClimateDesc(int climate)
+        public virtual string getClimateDesc(int climate)
         {
             
             if (climate == CLIMATE_NONE) 
-                return "Climate: None (no atmosphere)";
+                return "Climate: No atmosphere";
             
             if (climate == CLIMATE_FROZEN) 
                 return "Climate: Frozen (Below -20° F)";
@@ -2194,12 +2243,47 @@ namespace StarSystemGurpsGen
         }
 
         /// <summary>
+        ///  This function describes the atm in a string.
+        /// </summary>
+        /// <returns></returns>
+        public string descAtm()
+        {
+            List<string> dA = new List<string>();
+
+            //find conditions
+            foreach (int i in this.atmCate)
+            {
+                if (i > ATM_BASE_COND && i < (COND_INCREMENT + ATM_BASE_COND)) dA.Add("Special Condition");
+                if (i > ATM_BASE_MARGINAL && i < (MARGINAL_INCREMENT + ATM_BASE_MARGINAL)) dA.Add("Marginal");
+                if (i > ATM_BASE_TOXIC && i < (TOXIC_INCREMENT + ATM_BASE_TOXIC)) dA.Add("Toxic");
+            }
+
+            string desc = "";
+            for (int i = 0; i < dA.Count; i++)
+            {
+                desc += dA[i];
+                if ((i + 1) < dA.Count) desc += " & ";
+            }
+
+            return desc;
+        }
+
+        /// <summary>
         /// Updates the description of the atmosphere
         /// </summary>
         /// <param name="flag">The flag we're adding to the atmosphere</param>
         public void updateDescListing(int flag)
         {
             this.descListing.Add(flag);
+        }
+
+        /// <summary>
+        /// Describes a planet in the format of Large(Rock) for example
+        /// </summary>
+        /// <returns>string describing size(type)</returns>
+        public string descSizeType()
+        {
+            return (this.describeSatelliteSize() + "(" + this.convSatelliteTypeToString() + ")");
         }
 
         /// <summary>
@@ -2311,7 +2395,7 @@ namespace StarSystemGurpsGen
              
              ret = ret + nL + spacing + "Blackbody Temperature is " + Math.Round(this.blackbodyTemp, numOfSmallDigits) + "K";
 
-             ret = ret + nL + spacing + "Orbital Parent: " + Star.getDescOrderFlag(this.parentID) + ".";
+             ret = ret + nL + spacing + "Orbital Parent: " + Star.getDescSelfFlag(this.parentID) + ".";
 
              ret = ret + nL;
 

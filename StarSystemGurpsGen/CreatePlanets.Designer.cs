@@ -230,7 +230,7 @@
             // 
             // btnGenPlanets
             // 
-            this.btnGenPlanets.Location = new System.Drawing.Point(208, 349);
+            this.btnGenPlanets.Location = new System.Drawing.Point(267, 348);
             this.btnGenPlanets.Name = "btnGenPlanets";
             this.btnGenPlanets.Size = new System.Drawing.Size(104, 24);
             this.btnGenPlanets.TabIndex = 25;

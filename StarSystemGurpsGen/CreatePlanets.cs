@@ -161,7 +161,7 @@ namespace StarSystemGurpsGen
                 this.ourSystem.sysStars[currStar].sortForbidden();
                 this.ourSystem.sysStars[currStar].createCleanZones();
                 //gas giant flag
-                libStarGen.gasGiantFlag(this.ourSystem.sysStars[currStar], velvetBag.gurpsRoll());
+//                libStarGen.gasGiantFlag(this.ourSystem.sysStars[currStar], velvetBag.gurpsRoll());
 
                 Satellite placeHolder = new Satellite(0, 0, 0, 0);
                 int ownership, roll;
@@ -333,6 +333,9 @@ namespace StarSystemGurpsGen
                 }
                 libStarGen.createPlanets(this.ourSystem, this.ourSystem.sysStars[currStar].sysPlanets, velvetBag);
             }
+
+            parent.createPlanetsFinished = true;
+            this.Close(); //close the form
         }
 
         /// <summary>
