@@ -401,5 +401,23 @@ namespace StarSystemGurpsGen
             }
         }
 
+        private void btnViewFull_Click(object sender, EventArgs e)
+        {
+            string ourSystem = "";
+
+            ourSystem += "System Name: " + this.ourSystem.sysName + Environment.NewLine;
+            ourSystem += "System Age: " + this.ourSystem.sysAge + Environment.NewLine;
+            ourSystem += Environment.NewLine;
+            foreach (Star s in this.ourSystem.sysStars)
+            {
+                ourSystem += s + Environment.NewLine;
+                ourSystem += Environment.NewLine;
+            }
+
+            OutputWindow printSystem = new OutputWindow(ourSystem, this.ourSystem.sysName);
+            printSystem.ShowDialog();
+            
+        }
+
     }
 }
