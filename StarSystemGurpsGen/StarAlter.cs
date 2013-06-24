@@ -10,20 +10,71 @@ using System.Windows.Forms;
 
 namespace StarSystemGurpsGen
 {
+    /// <summary>
+    ///  This is the class object for a form to alter a star.
+    /// </summary>
     public partial class StarAlter : Form
     {      
+        /// <summary>
+        /// Parent system object
+        /// </summary>
         public StarSystem ourSystem { get; set; }
+
+        /// <summary>
+        /// The star we are working on
+        /// </summary>
         public int starID { get; set; }
+
+        /// <summary>
+        /// The age chart for the star. Used so users can cancel the editing
+        /// </summary>
         protected StarAgeLine currAgeChart { get; set; }
+
+        /// <summary>
+        /// The current age status
+        /// </summary>
         public int currAgeStatus { get; set; }
+
+        /// <summary>
+        /// The dice object
+        /// </summary>
         public Dice myDice { get; set; }
+
+        /// <summary>
+        /// The original radius (pre editing)
+        /// </summary>
         public double origRadius { get; set; }
 
+        /// <summary>
+        /// Minimum Good Luminosity 
+        /// </summary>
         public double minGoodLumin { get; set; }
+
+        /// <summary>
+        /// Maximum Good Luminosity
+        /// </summary>
         public double maxGoodLumin { get; set; }
+
+        /// <summary>
+        /// Min Good Temperature
+        /// </summary>
         public double minGoodTemp { get; set; }
+
+        /// <summary>
+        /// Max Good Temperature
+        /// </summary>
         public double maxGoodTemp { get; set; }
 
+        /// <summary>
+        /// The color of the star
+        /// </summary>
+        public string color { get; set; }
+
+        /// <summary>
+        /// Constructor object
+        /// </summary>
+        /// <param name="id">The star ID</param>
+        /// <param name="o">Our star system</param>
         public StarAlter(int id, StarSystem o)
         {
             InitializeComponent();
@@ -46,6 +97,9 @@ namespace StarSystemGurpsGen
 
         }
 
+        /// <summary>
+        /// Display the star's details
+        /// </summary>
         private void displayFromStar()
         {
             txtName.Text = this.ourSystem.sysStars[this.starID].name;
@@ -69,7 +123,7 @@ namespace StarSystemGurpsGen
             txtRadius.Text = this.ourSystem.sysStars[this.starID].orbitalRadius.ToString();
             numEccent.Value = (decimal)this.ourSystem.sysStars[this.starID].orbitalEccent;
 
-            lblStellarColor.Text = "Stellar Color: " + Star.getColor(this.ourSystem.sysStars[this.starID].effTemp);
+            lblStellarColor.Text = "Stellar Color: " + this.ourSystem.sysStars[this.starID].starColor;
 
             this.currAgeStatus = this.ourSystem.sysStars[this.starID].evoLine.findCurrentAgeGroup((double)numAge.Value);
             lblCurrentStage.Text = "Current Status: " + StarAgeLine.descBranch(this.currAgeStatus);
@@ -91,6 +145,11 @@ namespace StarSystemGurpsGen
             lblCurrentStage.Text = "Current Status: " + StarAgeLine.descBranch(this.currAgeStatus);
         }
 
+        /// <summary>
+        /// Update the display based on a mass update
+        /// </summary>
+        /// <param name="sender">The object sending you here</param>
+        /// <param name="e">Event arguments</param>
         private void numCurrMass_Leave(object sender, EventArgs e)
         {
             //first, initial luminosity
@@ -116,14 +175,15 @@ namespace StarSystemGurpsGen
             txtCurrLumin.Text = Math.Round(Star.getCurrLumin(this.currAgeChart, (double)numAge.Value, (double)numCurrMass.Value),3).ToString();
 
             double temp;
-            temp = Star.getCurrentTemp(this.currAgeChart, (double)numAge.Value, (double)numCurrMass.Value, this.myDice);
+            temp = Star.getCurrentTemp(this.currAgeChart, Convert.ToDouble(txtCurrLumin.Text), (double)numAge.Value, (double)numCurrMass.Value, this.myDice);
             txtEffTemp.Text = Convert.ToString(temp);
 
             //set good ranges
             createAcceptRanges(Star.getCurrLumin(this.currAgeChart, (double)numAge.Value, (double)numCurrMass.Value), temp);
 
             //display information for users benefits (formation zones, colors)
-            lblStellarColor.Text = "Stellar Color: " + Star.getColor(temp);
+            this.color = Star.setColor(this.myDice, temp);
+            lblStellarColor.Text = "Stellar Color: " + color;
             lblStellarRadius.Text = "Stellar Radius: " + Star.getRadius((double)numCurrMass.Value, temp, Star.getCurrLumin(this.currAgeChart, (double)numAge.Value, (double)numCurrMass.Value),
                   this.currAgeChart.findCurrentAgeGroup((double)numAge.Value)) + " AU";
 
@@ -138,6 +198,11 @@ namespace StarSystemGurpsGen
             }
         }
 
+        /// <summary>
+        /// Update the display when you change the age of the star
+        /// </summary>
+        /// <param name="sender">The object sending you here</param>
+        /// <param name="e">Event arguments</param>
         private void numAge_Leave(object sender, EventArgs e)
         {
 
@@ -147,18 +212,22 @@ namespace StarSystemGurpsGen
             txtCurrLumin.Text = Math.Round(Star.getCurrLumin(this.currAgeChart, (double)numAge.Value, (double)numCurrMass.Value), 3).ToString();
 
             double temp;
-            temp = Star.getCurrentTemp(this.currAgeChart, (double)numAge.Value, (double)numCurrMass.Value, this.myDice);
+            temp = Star.getCurrentTemp(this.currAgeChart, Convert.ToDouble(txtCurrLumin.Text), (double)numAge.Value, (double)numCurrMass.Value, this.myDice);
             txtEffTemp.Text = Convert.ToString(temp);
 
             createAcceptRanges(Star.getCurrLumin(this.currAgeChart, (double)numAge.Value, (double)numCurrMass.Value), temp);
 
-            lblStellarColor.Text = "Stellar Color: " + Star.getColor(temp);
+            lblStellarColor.Text = "Stellar Color: " + Star.setColor(this.myDice, temp);
             lblStellarRadius.Text = Star.getRadius((double)numCurrMass.Value, temp, Star.getCurrLumin(this.currAgeChart, (double)numAge.Value, (double)numCurrMass.Value),
                   this.currAgeChart.findCurrentAgeGroup((double)numAge.Value)) + " AU";
 
         }
 
-
+        /// <summary>
+        /// This function creates the acceptable ranges and displayst hem
+        /// </summary>
+        /// <param name="lumin">The luminosity the ragne is based on</param>
+        /// <param name="temp">The temperature the range is based on</param>
         private void createAcceptRanges(double lumin, double temp)
         {
             //set good ranges
@@ -173,6 +242,11 @@ namespace StarSystemGurpsGen
             lblEffTempGR.Text = "Acceptable Range is " + this.minGoodTemp + " to " + this.maxGoodTemp + " K";
         }
 
+        /// <summary>
+        /// Makes sure users put in a number, and within the valid range in the luminosity field.
+        /// </summary>
+        /// <param name="sender">The object sending you here</param>
+        /// <param name="e">Event arguments</param>
         private void txtCurrLumin_Validating(object sender, CancelEventArgs e)
         {
             double testLumin;
@@ -189,6 +263,11 @@ namespace StarSystemGurpsGen
             }
         }
 
+        /// <summary>
+        /// Makes sure users put in a number, and within the valid range in the temperature field.
+        /// </summary>
+        /// <param name="sender">The object sending you here</param>
+        /// <param name="e">Event arguments</param>
         private void txtEffTemp_Validating(object sender, CancelEventArgs e)
         {
             double testTemp;
@@ -212,14 +291,23 @@ namespace StarSystemGurpsGen
 
         }
 
-
+        /// <summary>
+        /// Update the periapsis and apapasis fields.
+        /// </summary>
+        /// <param name="sender">The object sending you here</param>
+        /// <param name="e">Event arguments</param>
         private void numEccent_Leave(object sender, EventArgs e)
         {
-            //txtRadius.Text)
             lblPeriapsis.Text = "Periapsis: " + Orbital.getPeriapsis((double)numEccent.Value, Convert.ToDouble(txtRadius.Text)) + " AU";
             lblApapsis.Text = "Apapsis: " + Orbital.getApapsis((double)numEccent.Value, Convert.ToDouble(txtRadius.Text)) + " AU";
         }
 
+        /// <summary>
+        /// Validates the orbital radius (valid number, within valid ranges)
+        /// </summary>
+        /// <param name="sender">The object sending you here</param>
+        /// <param name="e">Event arguments</param>
+        /// <remarks>One day it might even check for overlap!</remarks>
         private void txtRadius_Validating(object sender, CancelEventArgs e)
         {
             double testRadius;
@@ -238,6 +326,11 @@ namespace StarSystemGurpsGen
             }
         }
 
+        /// <summary>
+        /// Closes the field, does not save to the star object
+        /// </summary>
+        /// <param name="sender">The object sending you here</param>
+        /// <param name="e">Event arguments</param>
         private void btnCancel_Click(object sender, EventArgs e)
         {
             this.Close();

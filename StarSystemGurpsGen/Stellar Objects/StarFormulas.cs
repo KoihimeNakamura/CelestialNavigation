@@ -20,61 +20,56 @@ namespace StarSystemGurpsGen
         }
 
 
-        //object arrays.
-       
-        public virtual double stellarMass(int rollA, int rollB)
-        {
-            if (rollA > 18 || rollA < 0 || rollB > 18 || rollB < 0)
-                throw new System.ArgumentException("One of the passed dice roll is beyond limits", "original");
+       /// <summary>
+       /// This function is used to safely roll on the table (contains some error bound checking.)
+       /// </summary>
+       /// <param name="rollA">First roll</param>
+       /// <param name="rollB">Second roll</param>
+       /// <exception cref="System.ArgumentException">Throws an ArgumentException if this is out of bounds (below 0 and above 18)</exception>
+       /// <returns>The table entry</returns>
+       public static double getMassByRoll(int rollA, int rollB)
+       {
+          if (rollA > 18 || rollA < 0 || rollB > 18 || rollB < 0)
+                throw new System.ArgumentException("One of the passed dice roll is beyond limits");
 
-            return Star.starMassTable[rollA][rollB];
+            return Star.starMassTableByRoll[rollA][rollB];
         }
 
-        public static double WhiteDwarfTemp(double mass, double age)
-        {
-            double currTemp = 0.0;
+       /// <summary>
+       /// Returns the mass from the array <see cref="Star.starMassTableByIndex"/> given an index.
+       /// </summary>
+       /// <param name="index">The index to retrieve </param>
+       /// <exception cref="System.ArgumentException">Throws an ArgumentException if this is out of bounds (below 0 and above the length.)</exception>
+       /// <returns>The mass</returns>
+       public static double getMassByIndex(int index)
+       {
+           if (index < 0 && index > Star.starMassTableByIndex.Length)
+               throw new System.ArgumentException("The passed index is beyond limits");
 
-            if (mass > 1.2 && mass <= 1.4)
-               currTemp = 60000;
+           return Star.starMassTableByIndex[index];
+       }
 
-            if (mass > 1.0 && mass <= 1.2)
-                currTemp = 55000;
+       /// <summary>
+       /// This function gets the current index in the mass table by the current mass
+       /// </summary>
+       /// <param name="mass">The mass we're looking for</param>
+       /// <returns>The index</returns>
+       public static int getStellarMassPos(double mass)
+       {
+           for (int i = 0; i < Star.starMassTableByIndex.Length; i++)
+           {
+               if (mass == Star.starMassTableByIndex[i])
+                   return i;
 
-            if (mass > .6 && mass <= 1.0)
-                currTemp = 45000;
+               if (i != Star.starMassTableByIndex.Length - 1 && mass < Star.starMassTableByIndex[i] && mass > Star.starMassTableByIndex[i + 1])
+                   return i;
 
-            if (mass >= .3 && mass <= .6)
-                currTemp = 30000;
+               if (i == Star.starMassTableByIndex.Length - 1)
+                   return i;      
+           }
 
-            if (mass < .3)
-                currTemp = 25000;
-
-            if (age <= .3)
-                currTemp = currTemp * .85;
-
-            if (age > .3 && age <= 2.0)
-                currTemp = currTemp * .65;
-
-            if (age > 2.0 && age <= 2.5)
-                currTemp = currTemp * .45;
-
-            if (age > 2.5 && age <= 3.5)
-                currTemp = currTemp * .3;
-
-            if (age > 3.5 && age <= 5)
-                currTemp = currTemp * .25;
-
-            if (age > 5 && age <= 7)
-                currTemp = currTemp * .1;
-
-            if (age > 7 && age <= 11)
-                currTemp = currTemp * .02;
-
-            if (age > 11)
-                currTemp = 20;
-
-            return currTemp;
-        }
+           return -1;
+       }
 
         public static string getStellarTypeFromMass(double mass)
         {
@@ -217,6 +212,11 @@ namespace StarSystemGurpsGen
             return tmpDbl;
         }
 
+        /// <summary>
+        /// Calculates the inital temperature of a star, given it's mass
+        /// </summary>
+        /// <param name="currMass">The mass of a star being calculated</param>
+        /// <returns>The initial effective temperature</returns>
         public static double getInitTemp(double currMass)
         {
             double tmpDbl;
@@ -230,10 +230,10 @@ namespace StarSystemGurpsGen
 
         public static double getRadius(double mass, double effTemp, double currLumin, int currentAgeGroup)
         {
-            if (currentAgeGroup != StarAgeLine.RET_DWARFBRANCH)
+            if (currentAgeGroup != StarAgeLine.RET_COLLASPEDSTAR)
                 return ((155000 * Math.Sqrt(currLumin)) / Math.Pow(effTemp, 2));
             else
-                return (.0001118 * Math.Pow(mass, (1 / 3)));  
+                 return 8748.95685 * Math.Pow(mass, -1 / 3);
         }
 
 
@@ -265,101 +265,6 @@ namespace StarSystemGurpsGen
         public static double calcOrbitalPeriod(double orbitMass, double srcMass, double orbitalRadius)
         {
             return Math.Sqrt(Math.Pow(orbitalRadius, 3) / (orbitMass + srcMass));
-        }
-
-        public static double rollMass(Dice velvetBag)
-        {
-            int rollA, rollB;
-            
-            rollA = velvetBag.gurpsRoll();
-            rollB = velvetBag.gurpsRoll();
-
-            
-            if (OptionCont.forceGardenFavorable)
-            {
-                int temp = velvetBag.rng(1, 6);
-                if (temp == 1) rollA = 5;
-                if (temp == 2) rollA = 6;
-                if (temp == 3 || temp == 4) rollA = 7;
-                if (temp == 5 || temp == 6) rollA = 8;
-            }
-
-            if (rollA > 18) rollA = 18;
-            if (rollB > 18) rollB = 18;
-
-            if (OptionCont.stellarMassRangeSet)
-            {
-               return velvetBag.rollInRange(OptionCont.minStellarMass, OptionCont.maxStellarMass);
-            }
-
-            return Star.starMassTable[rollA][rollB];
-        }
-
-        public static double rollMass(Dice velvetBag, double maxMass)
-        {
-            int diff, currPos = 0, total;
-
-            //get the current position
-            for (int i = 0; i <= 18; i++)
-            {
-                for (int j = 0; j <= 18; j++)
-                {
-                    if (maxMass == Star.starMassTable[i][j])
-                    {
-                        currPos = (i * 18) + j;
-                    }
-                }
-            }
-
-            diff = velvetBag.rng(1, 6, -1) * velvetBag.rng(1, 6);
-            total = (diff * 2) + currPos;
-            if (total > 341) total = 341;
-            
-            //convert it to the format we need for the table.
-            int valA = 0, valB = 0;
-            valA = total / 18;
-            if (valA < 3) valA = 3;
-            
-            
-            valB = total - (valA * 18);
-            if (valB < 3) valB = 3;
-
-            if (valA > 18) valA = 18;
-            if (valB > 18) valB = 18;
-
-            if (OptionCont.stellarMassRangeSet)
-            {
-                if (maxMass < OptionCont.minStellarMass) return maxMass;
-                do
-                {
-                    double tempMass = velvetBag.rollInRange(OptionCont.minStellarMass, OptionCont.maxStellarMass);
-                    if (tempMass <= maxMass) return tempMass;
-                } while (true);
-            }
-
-
-            return Star.starMassTable[valA][valB];    
-
-        }
-
-        public static String getColor(double temp)
-        {
-            string color = "";
-
-            if (temp >= 33000) return "blue";
-            if (temp >= 10000 && temp < 33000) return "Blue-white";
-            if (temp >= 7500 && temp < 10000) return "Whitish Blue";
-            if (temp >= 6000 && temp < 7500) return "White";
-            if (temp >= 5200 && temp < 6000) return "Yellow";
-            if (temp >= 4250 && temp < 5200) return "Yellowish Orange";
-            if (temp >= 3700 && temp < 4250) return "Orange";
-            if (temp >= 2000 && temp < 3700) return "Orangish Red";
-            if (temp >= 1300 && temp < 2000) return "Red";
-            if (temp >= 700 && temp < 1300) return "Purplish Red";
-            if (temp >= 100 && temp < 700) return "Brown";
-            if (temp < 100) return "Black";
-
-            return color;
         }
 
         /**
@@ -446,6 +351,11 @@ namespace StarSystemGurpsGen
             return this.zonesOfInterest.verifyRange(this.getConventionalRange());
         }
 
+        /// <summary>
+        /// This describes the gas giant flag.
+        /// </summary>
+        /// <param name="flag">The gas giant flag</param>
+        /// <returns>A string containing the description of the flag</returns>
         public static String descGasGiantFlag(int flag)
         {
             if (flag == GASGIANT_CONVENTIONAL) return "Conventional Gas Giant";
@@ -456,7 +366,12 @@ namespace StarSystemGurpsGen
             return "GAS GIANT ERROR";
         }
 
-        public static string getDescOrderFlag(int flag)
+        /// <summary>
+        /// Describes the self flag.
+        /// </summary>
+        /// <param name="flag">The self ID of the star</param>
+        /// <returns>The string of the self ID</returns>
+        public static string getDescSelfFlag(int flag)
         {
             if (flag == Star.IS_PRIMARY)
                 return "Primary star";
