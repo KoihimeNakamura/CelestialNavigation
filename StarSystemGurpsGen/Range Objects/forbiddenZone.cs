@@ -50,7 +50,7 @@ namespace StarSystemGurpsGen
         public override String ToString()
         {
             String ret = "This forbidden zone is from " + this.lowerBound + " to " + this.upperBound + " AU";
-            ret = ret + Environment.NewLine + "      " + "From star " + Star.getDescOrderFlag(this.primaryStar) + " to " + Star.getDescOrderFlag(this.secondaryStar);
+            ret = ret + Environment.NewLine + "      " + "From star " + Star.getDescSelfFlag(this.primaryStar) + " to " + Star.getDescSelfFlag(this.secondaryStar);
 
             return ret;
         }

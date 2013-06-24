@@ -127,7 +127,7 @@ namespace StarSystemGurpsGen
             int roll = 0;
 
             //if there's an override in, autoreturn it.
-            if (OptionCont.numStarOverride) return OptionCont.numStars;
+            //if (OptionCont.numStarOverride) return OptionCont.numStars;
 
             roll = ourDice.gurpsRoll();
 
@@ -142,32 +142,11 @@ namespace StarSystemGurpsGen
             return roll;
         }
 
-        public void genStellarAge(Dice ourDice)
-        {
-            
-            //get first roll
-            int roll;
-            roll = ourDice.gurpsRoll();
-
-            if (roll == 3)
-                this.sysAge = 0.01;
-            if (roll >= 4 && roll <= 6)
-                this.sysAge = .1 + (ourDice.rng(1, 6, -1) * .3) + (ourDice.rng(1, 6, -1) * .05);
-            if (roll >= 7 && roll <= 10)
-                this.sysAge = 2 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1);
-            if (roll >= 11 && roll <= 14)
-                this.sysAge = 5.6 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1);
-            if (roll >= 15 && roll <= 17)
-                this.sysAge = 8 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1);
-            if (roll == 18)
-                this.sysAge = 10 + (ourDice.rng(1, 6, -1) * .6) + (ourDice.rng(1, 6, -1) * .1);
-
-            if (OptionCont.presetOverride)
-                this.sysAge = OptionCont.presetAge;
-            
-
-        }
-
+        /// <summary>
+        /// Gets the population from the age
+        /// </summary>
+        /// <param name="age">The age</param>
+        /// <returns>The age description</returns>
         public static String getPopulationFromAge(double age)
         {
             if (age >= .01 && age < .1) return "Extreme Population I";
@@ -180,9 +159,41 @@ namespace StarSystemGurpsGen
             return "???";
         }
 
+        /// <summary>
+        /// This counts the number of stars in this solar system.
+        /// </summary>
+        /// <returns>Returns an integer of the number of stars</returns>
         public int countStars()
         {
             return this.sysStars.Count;
         }
+
+        /// <summary>
+        /// This counts the total number of planets in this solar system
+        /// </summary>
+        /// <returns>Returns an integer of the number of planets</returns>
+        public int countPlanets()
+        {
+            int totalPlanets = 0;
+
+            for (int i = 0; i < this.sysStars.Count; i++)
+            {
+                totalPlanets += this.sysStars[i].sysPlanets.Count;
+            }
+
+            return totalPlanets;
+        }
+
+        /// <summary>
+        /// Clears all planets withotu removing the stars.
+        /// </summary>
+        public void clearPlanets()
+        {
+            foreach (Star s in this.sysStars)
+            {
+                s.sysPlanets.Clear();
+            }
+        }
+
     }
 }

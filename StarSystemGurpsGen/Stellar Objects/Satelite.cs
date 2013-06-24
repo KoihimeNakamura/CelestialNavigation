@@ -6,19 +6,55 @@ using System.Threading.Tasks;
 
 namespace StarSystemGurpsGen
 {
+    /// <summary>
+    /// The object for satelites and moons in this object
+    /// </summary>
     public class Satellite : Orbital
     {
         //flags!
 
         // generic error flags
         // mainly used to release error conditions from functions
+
+        /// <summary>
+        /// FLAG: The orbit has an error (or could not be correctly added)
+        /// </summary>
         readonly public static int ERROR_ORBIT = -1;
+
+        /// <summary>
+        /// FLAG: The basetype has an error (or could not be correctly set)
+        /// </summary>
         readonly public static int ERROR_BASETYPE = -2;
+
+        /// <summary>
+        /// FLAG: The subtype has an error (or could not be correctly set)
+        /// </summary>
         readonly public static int ERROR_SUBTYPE = -3;
+
+        /// <summary>
+        /// FLAG: The size has an error (or could not be correctly set)
+        /// </summary>
         readonly public static int ERROR_SIZE = -4;
+
+        /// <summary>
+        /// FLAG: The atmosphere size has an error (or could not be correctly set)
+        /// </summary>
         readonly public static int ERROR_ATM = -5;
+
+        /// <summary>
+        /// FLAG: The atmosphere condition has an error (or could not be correctly set)
+        /// </summary>
         readonly public static int ERROR_ATMCOND = -6;
+
+        /// <summary>
+        /// FLAG: Unknown error!
+        /// </summary>
         readonly public static int ERROR_GENERIC = -7;
+
+        /// <summary>
+        /// The amount of gravity on Earth.
+        /// </summary>
+        readonly public static double GFORCE = 9.80665;
 
         // owner flags.
         // we use the star ids when it's just one star, though.
@@ -83,11 +119,13 @@ namespace StarSystemGurpsGen
         readonly public static int ATM_COND_CORROSIVE = ATM_BASE_COND + 0;
         readonly public static int ATM_COND_SUFFOCATING = ATM_BASE_COND + 1;
         readonly public static int ATM_COND_FLAMP1 = ATM_BASE_COND + 2;
+
         //the following are [Toxic]
         readonly public static int ATM_BASE_TOXIC = 340;
         readonly public static int ATM_TOXIC_MILDLY = ATM_BASE_TOXIC + 0;
         readonly public static int ATM_TOXIC_HIGHLY = ATM_BASE_TOXIC + 1;
         readonly public static int ATM_TOXIC_LETHALLY = ATM_BASE_TOXIC + 2;
+
         // the following are [Marginal].
         readonly public static int ATM_BASE_MARGINAL = 350;
         readonly public static int ATM_MARG_INERT = ATM_BASE_MARGINAL + 0;
@@ -101,10 +139,24 @@ namespace StarSystemGurpsGen
         readonly public static int ATM_MARG_POLLUTANTS = ATM_BASE_MARGINAL + 8;
         readonly public static int ATM_MARG_HIGHCO2 = ATM_BASE_MARGINAL + 9;
 
+        /// <summary>
+        /// This flag stores the count of marginal flags. If you add one, please increment this.
+        /// </summary>
+        readonly protected static int MARGINAL_INCREMENT = 10;
+
+        /// <summary>
+        /// This flag stors the count of conditional flags. If you add one, please increment this
+        /// </summary>
+        readonly protected static int COND_INCREMENT = 3;
+
+        /// <summary>
+        /// This flag stores the count of toxicity flags.
+        /// </summary>
+        readonly protected static int TOXIC_INCREMENT = 3;
+
         // range flags
         // used to calc further down (can be altered at will)
         readonly public static int RNG_ATMTOXIC = 3;
-        readonly public static int RNG_ATMMARG = 10;
 
         // geologic flags
         // used for both tectonic and heavy actvitiy.
@@ -273,8 +325,6 @@ namespace StarSystemGurpsGen
 
         public void updateAtmPres(double atmPres)
         {
-            //if (OptionCont.verboseOutput) TesterApp.Program.output.WriteLine("Updating the atmospheric pressure for this satelite to {0}.",this.atmPres);
-
             this.atmPres = atmPres;
             if (this.atmPres == 0)
             {
@@ -282,13 +332,19 @@ namespace StarSystemGurpsGen
                 this.atmMass = 0.0;
 
                 //nuke it.
-              //  if (OptionCont.verboseOutput) TesterApp.Program.output.WriteLine("Resetting atmosphere notes for 0 atmosphere.");
-
                 if (this.atmCate.Count > 0)
                     this.atmCate.RemoveRange(0, this.atmCate.Count);
             }
         }
 
+        /// <summary>
+        /// Constructor object
+        /// </summary>
+        /// <param name="parent">The parent ID (inherited from Orbital)</param>
+        /// <param name="self">Self ID (inherited from Orbital)</param>
+        /// <param name="radius">Orbital Radius of the satelite</param>
+        /// <param name="masterCount">In a system, the ordinal of the planet from the sun</param>
+        /// <param name="satType">The Satelite Type. Default is BASETYPE_UNSET</param>
         public Satellite(int parent, int self, double radius, int masterCount, int satType = 999)
             : base(parent, self)
         {
@@ -301,7 +357,10 @@ namespace StarSystemGurpsGen
             this.isResonant = false;
         }
 
-        //copy constructor
+        /// <summary>
+        /// The copy constructor
+        /// </summary>
+        /// <param name="s">The satelite object we are copying</param>
         public Satellite(Satellite s) : base(s.parentID, s.selfID){
 
            // .. it's a copy constructor.
@@ -351,9 +410,10 @@ namespace StarSystemGurpsGen
 
         }
 
-        //deteremines Habitability score. Since this is all dependent on planet properties, no real
-        // point in keeping this outside the class.
-        // NOTE: This does not obey the GURPS 4e limit of max +8.
+        /// <summary>
+        /// This determines the habitability score of a satelite
+        /// </summary>
+        /// <returns>The habitability score of a satelite</returns>
         public virtual int getHabitability()
         {
             int mod = 0;
@@ -376,7 +436,7 @@ namespace StarSystemGurpsGen
                     if (currAtmNote == ATM_COND_CORROSIVE) 
                         mod = mod - 1;
 
-                    if (currAtmNote >= ATM_BASE_MARGINAL && currAtmNote < (ATM_BASE_MARGINAL + RNG_ATMMARG))
+                    if (currAtmNote >= ATM_BASE_MARGINAL && currAtmNote < (ATM_BASE_MARGINAL + MARGINAL_INCREMENT))
                         isMarginal = true;
                 }
             }
@@ -411,12 +471,14 @@ namespace StarSystemGurpsGen
             if (this.atmPres > 0.01 && this.getClimate(this.surfaceTemp) == Satellite.CLIMATE_TROPICAL) mod = mod + 2;
             if (this.atmPres > 0.01 && this.getClimate(this.surfaceTemp) == Satellite.CLIMATE_HOT) mod = mod + 1;
 
-            return mod;
+            if (mod >= 8 && !OptionCont.overrideHabitability) return 8;
+            else return mod;
         }
 
-        //converts the score to the associated description. 
-        // Generally speaking, you shouldn't invoke the actual number without this, since this gives the 
-        // real world description
+        /// <summary>
+        /// This returns the description of the RVM score according to the GURPS ruleset
+        /// </summary>
+        /// <returns>A string describing the RVM score</returns>
         public virtual string getRVMDesc()
         {
             if (this.RVM == -5) return "Worthless";
@@ -442,31 +504,34 @@ namespace StarSystemGurpsGen
             this.selfID = localOrbPos;
         }
 
-        //adds an atm condition to the list of conditions
-        // used to add stuff like toxic, marginal etc.
+        /// <summary>
+        /// Adds an ATM Category Flag
+        /// </summary>
+        /// <param name="s">The flag to be added</param>
         public virtual void addAtmCategory(int s)
         {
-            //if (OptionCont.verboseOutput) TesterApp.Program.output.WriteLine("Setting atmospheric condition: {0}", convAtmCodeToString(s));
             this.atmCate.Add(s);
         }
 
-        // We use this to get world type. It's placed in Satellite because it's pretty important
-        // Also: I'd rather be able to import Satellite and be able to almost totally create one.
-        // That's why this and calcBlackbodyTemp is here.
+        /// <summary>
+        /// This generates the world type, given our age, blackbody temperature and mass.
+        /// </summary>
+        /// <param name="maxMass">The mass of the star (used for Ammonia worlds)</param>
+        /// <param name="sysAge">Age of the planet</param>
+        /// <param name="ourBag">Dice object used for rolls</param>
+        /// <remarks>This is placed here so that somoene with the Satellite class can create one almost without additional logic coding.</remarks>
         public virtual void genWorldType(double maxMass, double sysAge, Dice ourBag)
         {
             if ((this.baseType == Satellite.BASETYPE_TERRESTIAL) || (this.baseType == Satellite.BASETYPE_MOON))
             {
                 if (this.SatelliteSize == Satellite.SIZE_TINY)
                 {
-                   // if (OptionCont.verboseOutput) TesterApp.Program.output.WriteLine("Setting type for a tiny world with blackbody temp {0}", this.blackbodyTemp);
                     if (this.blackbodyTemp <= 140.50) this.updateType(Satellite.SUBTYPE_ICE);
                     if (this.blackbodyTemp > 140.50) this.updateType(Satellite.SUBTYPE_ROCK);
                 }
 
                 if (this.SatelliteSize == Satellite.SIZE_SMALL)
                 {
-                    //if (OptionCont.verboseOutput) TesterApp.Program.output.WriteLine("Setting type for a small world with blackbody temp {0}", this.blackbodyTemp);
                     if (this.blackbodyTemp <= 80.50) this.updateType(Satellite.SUBTYPE_HADEAN);
                     if ((80.50 < this.blackbodyTemp) && (this.blackbodyTemp <= 140.50)) this.updateType(Satellite.SUBTYPE_ICE);
                     if (this.blackbodyTemp > 140.50) this.updateType(Satellite.SUBTYPE_ROCK);
@@ -475,7 +540,6 @@ namespace StarSystemGurpsGen
 
                 if (this.SatelliteSize == Satellite.SIZE_MEDIUM)
                 {
-                   // if (OptionCont.verboseOutput) TesterApp.Program.output.WriteLine("Setting type for a medium world with blackbody temp {0}", this.blackbodyTemp);
                     if (this.blackbodyTemp <= 80.50) this.updateType(Satellite.SUBTYPE_HADEAN);
                     if ((this.blackbodyTemp > 80.50) && (this.blackbodyTemp <= 150.50)) this.updateType(Satellite.SUBTYPE_ICE);
 
@@ -511,8 +575,7 @@ namespace StarSystemGurpsGen
                 }
 
                 if (this.SatelliteSize == Satellite.SIZE_LARGE)
-                {
-                   // if (OptionCont.verboseOutput) TesterApp.Program.output.WriteLine("Setting type for a large world with blackbody temp {0}", this.blackbodyTemp);
+                {                   
                     if (this.blackbodyTemp <= 150.50) this.updateType(Satellite.SUBTYPE_HADEAN);
                     if ((this.blackbodyTemp > 150.50) && (this.blackbodyTemp <= 230.50))
                     {
@@ -525,8 +588,11 @@ namespace StarSystemGurpsGen
                     {
                         int roll = ourBag.rng(3, 6, 0), mod = 0;
 
-                        mod = (int)Math.Floor(sysAge / .5);
-                        if (mod > 5) mod = 5;
+                        if (OptionCont.moreAccurateO2Catastrophe) mod = (int)Math.Floor(sysAge / .3);
+                        else mod = (int)Math.Floor(sysAge / .5); 
+
+                        if (!OptionCont.moreLargeGarden) if (mod > 5) mod = 5;
+                        if (OptionCont.moreLargeGarden) if (mod > 10) mod = 10;
 
                         roll = roll + mod;
 
@@ -541,15 +607,26 @@ namespace StarSystemGurpsGen
 
         } 
 
-        //blackbody calc. If you want to get anything done, you'll want this.
-        //Unlike the other functions, this returns a value.
+        
+        /// <summary>
+        /// Blackbody wrapper if you're invoking for the same satelite you want the temp for. Invokes the other function
+        /// </summary>
+        /// <param name="distChart">The distance chart of each star to each other</param>
+        /// <param name="ourStars">List of our stars</param>
         public virtual void updateBlackBodyTemp(double[,] distChart,List<Star> ourStars)
         {
             this.blackbodyTemp = calcBlackbodyTemp(distChart, ourStars, this.orbitalRadius, this.parentID);
-          //  if (OptionCont.verboseOutput) TesterApp.Program.output.WriteLine("Blackbody temp is set to {0}", this.blackbodyTemp);
         }
 
         //There might be a better way to calc this than I did.
+        /// <summary>
+        /// Blackbody function that calcluates our temperatuer
+        /// </summary>
+        /// <param name="distChart">The distance chart of each star to each other</param>
+        /// <param name="stars">List of our stars</param>
+        /// <param name="planetRadius">Radius of this satellite</param>
+        /// <param name="planetOwnership">The parent ID (what star does this satellite orbit)</param>
+        /// <returns></returns>
         public virtual double calcBlackbodyTemp(double[,] distChart,List<Star> stars, double planetRadius, int planetOwnership)
         {
             double currTemp = 0.0;
@@ -598,9 +675,11 @@ namespace StarSystemGurpsGen
 
 
 
-        //sets the type.
-        // So, since certain subtypes work on only Terrestial Worlds (the MAJORITY), we have to kinda prevent them for being set for Gas Giant
-        // it shouldn't super matter because the summarization functions shouldnt' allow it, but this IS a bit more robust. Pretty sure, anyway.
+        /// <summary>
+        /// This determines what types can be added. It performs some sanity checking to make sure that invalid combinations are not allowed.
+        /// </summary>
+        /// <param name="flag">The flag we are updating for</param>
+        /// <exception cref="Exception">Throws an exception if you attempt to set an invalid combo.</exception>
         public virtual void updateType(int flag)
         {
             if (flag == Satellite.BASETYPE_ASTEROIDBELT)
@@ -721,6 +800,13 @@ namespace StarSystemGurpsGen
 
         // FEW NOTES HERE: If you want to set the density of a gas giant, you'll auto set the mass. This is because the mass to generate the diameter. And for ease of use I'm 
         // letting it stand now.
+
+        /// <summary>
+        /// This function generates the density of a sateltie. You MUST have set a basetype first.
+        /// </summary>
+        /// <param name="ourBag">Our dice object</param>
+        /// <exception cref="Exception">Throws an exception if you attempt to invoke this on an satellite with any of: UNSET, EMPTY OR ASTEROID basetypes.</exception>
+        /// <remarks>For a satellite with a basetype of GASGIANT, it will auto set the mass. </remarks>
         public virtual void genDensity(Dice ourBag)
         {
             if (this.baseType == Satellite.BASETYPE_EMPTY || this.baseType == Satellite.BASETYPE_ASTEROIDBELT)
@@ -788,8 +874,13 @@ namespace StarSystemGurpsGen
             }
         }
 
-        //NOTE: since once you get the diameter and density, this will auto populate mass and gravity.
-        public virtual void genDiameter(Dice ourBag)
+        /// <summary>
+        /// This function will set the diameter, mass and gravity, given the density.
+        /// </summary>
+        /// <param name="ourBag">Our dice object</param>
+        /// <exception cref="Exception">Throws an exception if it's called on anything but a moon and gas giant</exception>
+        /// <exception cref="Exception">Throws an exception if the density is unset.</exception>
+        public virtual void genPhysicalParameters(Dice ourBag)
         {
             if (this.baseType == Satellite.BASETYPE_ASTEROIDBELT || this.baseType == Satellite.BASETYPE_EMPTY || this.baseType == Satellite.BASETYPE_UNSET)
                 throw new Exception("Please only call this on a moon, terrestial planet or gas giant.");
@@ -827,7 +918,9 @@ namespace StarSystemGurpsGen
             }
         }
 
-        //given gravity, the atm mass, this pulls the pressure factor from the table and returns the pressure of the atmosphere
+        /// <summary>
+        /// This sets the atmospheric pressure given the table and various properties of the atmosphere.
+        /// </summary>
         public virtual void calcAtmPres()
         {
             if (!(this.baseType == Satellite.BASETYPE_MOON || this.baseType == Satellite.BASETYPE_TERRESTIAL))
@@ -838,6 +931,7 @@ namespace StarSystemGurpsGen
 
             double presFact = 0.0;
 
+            //pull the fact from the table. Well, from this..
             if (this.SatelliteSize == Satellite.SIZE_SMALL && this.SatelliteType == Satellite.SUBTYPE_ICE)
                 presFact = 10.0;
 
@@ -876,63 +970,78 @@ namespace StarSystemGurpsGen
                 this.atmPres = .01;
                 this.atmMass = .01;
             }
-          
-            
+
+            if (OptionCont.setAtmPressure != -1 && this.SatelliteType == Satellite.SUBTYPE_GARDEN)
+                this.atmPres = OptionCont.setAtmPressure;
+
         }
         
-        //assigns an axial tilt based on the GURPS 4e Space reuleset
+        /// <summary>
+        /// Calculates an axial tilt of a satellite given the ruleset
+        /// </summary>
+        /// <param name="ourBag"></param>
         public virtual void createAxialTilt(Dice ourBag)
         {
-            switch (ourBag.gurpsRoll())
+            do
             {
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                    this.axialTilt = ourBag.rng(2, 6, -2);
-                    break;
-                case 7:
-                case 8:
-                case 9:
-                    this.axialTilt = 10 + ourBag.rng(2, 6, -2);
-                    break;
-                case 10:
-                case 11:
-                case 12:
-                    this.axialTilt = 20 + ourBag.rng(2, 6, -2);
-                    break;
-                case 13:
-                case 14:
-                    this.axialTilt = 30 + ourBag.rng(2, 6, -2);
-                    break;
-                case 15:
-                case 16:
-                    this.axialTilt = 30 + ourBag.rng(2, 6, -2);
-                    break;
-                case 17:
-                case 18:
-                    switch (ourBag.rng(1, 6, 0))
-                    {
-                        case 1:
-                        case 2:
-                            this.axialTilt = 50 + ourBag.rng(2, 6, -2);
-                            break;
-                        case 3:
-                        case 4:
-                            this.axialTilt = 60 + ourBag.rng(2, 6, -2);
-                            break;
-                        case 5:
-                            this.axialTilt = 70 + ourBag.rng(2, 6, -2);
-                            break;
-                        case 6:
-                            this.axialTilt = 80 + ourBag.rng(2, 6, -2);
-                            break;
-                    }
-                    break;
-            }
+                switch (ourBag.gurpsRoll())
+                {
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                        this.axialTilt = ourBag.rng(2, 6, -2);
+                        break;
+                    case 7:
+                    case 8:
+                    case 9:
+                        this.axialTilt = 10 + ourBag.rng(2, 6, -2);
+                        break;
+                    case 10:
+                    case 11:
+                    case 12:
+                        this.axialTilt = 20 + ourBag.rng(2, 6, -2);
+                        break;
+                    case 13:
+                    case 14:
+                        this.axialTilt = 30 + ourBag.rng(2, 6, -2);
+                        break;
+                    case 15:
+                    case 16:
+                        this.axialTilt = 30 + ourBag.rng(2, 6, -2);
+                        break;
+                    case 17:
+                    case 18:
+                        switch (ourBag.rng(1, 6, 0))
+                        {
+                            case 1:
+                            case 2:
+                                this.axialTilt = 50 + ourBag.rng(2, 6, -2);
+                                break;
+                            case 3:
+                            case 4:
+                                this.axialTilt = 60 + ourBag.rng(2, 6, -2);
+                                break;
+                            case 5:
+                                this.axialTilt = 70 + ourBag.rng(2, 6, -2);
+                                break;
+                            case 6:
+                                this.axialTilt = 80 + ourBag.rng(2, 6, -2);
+                                break;
+                        }
+                        break;
+                }
+            } while (OptionCont.rerollAxialTiltOver45 && this.axialTilt > 45);
+
+
+           if (OptionCont.getAxialTilt() != -1)
+                this.axialTilt = OptionCont.getAxialTilt();
         }    
 
-        // rolls for RVM on the GURPS 4e table.
+        /// <summary>
+        /// Sets the Resource Value Modifier for this satelite
+        /// </summary>
+        /// <param name="roll">The dice roll</param>
         public virtual void populateRVM(int roll)
         {
             if (this.baseType == Satellite.BASETYPE_ASTEROIDBELT)
@@ -962,6 +1071,11 @@ namespace StarSystemGurpsGen
             }
         }
 
+       /// <summary>
+       /// Sets climate and atmospheric data for this satelite. 
+       /// </summary>
+       /// <param name="maxMass">The maximum mass of the star</param>
+       /// <param name="ourBag">The Dice object</param>
        public void setClimateData(double maxMass, Dice ourBag)
         {
             int roll;
@@ -1302,31 +1416,47 @@ namespace StarSystemGurpsGen
             }
         }
         
-        // updates the size field
-        // it's a seperate void in order to do any error checking or tests we may need later.
+       /// <summary>
+       /// This function sets the size of a satelite.
+       /// </summary>
+       /// <param name="flag">The size to set to</param>
+       /// <exception cref="Exception">It will throw an exception if you attempt to set Tiny on a Gas Giant</exception>
         public virtual void updateSize(int flag)
         {
             if (this.baseType == Satellite.BASETYPE_GASGIANT && flag == Satellite.SIZE_TINY)
                 throw new Exception("You cannot have Tiny Gas Giants");
 
             this.SatelliteSize = flag;
+            this.SatelliteSize = this.SatelliteSize;
         }
         
-        //calls both functions as a shortcut.
-        // Not sure you'd WANT to override this, but it's available if you'd want to.
+        /// <summary>
+        /// A shortcut function to update both the type and size of a satellite
+        /// </summary>
+        /// <param name="typeFlag">The type of a satellite</param>
+        /// <param name="sizeFlag">The size of a satellite</param>
         public virtual void updateTypeSize(int typeFlag, int sizeFlag)
         {
             this.updateType(typeFlag);
             this.updateSize(sizeFlag);
         }
 
-        //it's the addition of both, and used in case you don't want to get them seperatly. 
+        /// <summary>
+        /// Returns the affinity of the planet
+        /// </summary>
+        /// <returns>The affinity (RVM + Habitability)</returns>
         public virtual int getAffinity()
         {
             return getHabitability() + RVM;
         }
 
-        //This is used for moons of a gas giant. Higher differentation will have different effects.
+        /// <summary>
+        /// This factor calculates the differentation on a moon. Should only be invoked on a gas giant moon
+        /// </summary>
+        /// <param name="parentMass">The parent mass of the moon</param>
+        /// <param name="ourBag">Dice object used for rolls</param>
+        /// <returns>The differentation factor</returns>
+        /// <exception cref="Exception">Will throw an exception if you invoke this on a satellite that isn't a moon</exception>
         public double getDifferentationFactor(double parentMass, Dice ourBag)
         {
             if (!(this.baseType == Satellite.BASETYPE_MOON))
@@ -1348,7 +1478,10 @@ namespace StarSystemGurpsGen
             return value;
         }
 
-        //calcs the category based on pressure.
+        /// <summary>
+        /// This function calculates the category given the atmospheric pressure
+        /// </summary>
+        /// <returns>The flag describing the pressure category</returns>
         public virtual int getAtmCategory()
         {
             if (this.atmPres < 0.01) return ATM_PRES_NONE;
@@ -1363,7 +1496,10 @@ namespace StarSystemGurpsGen
             return ERROR_ATM;
         }
 
-       
+        /// <summary>
+        /// Describes the volcanic activity of this satelite
+        /// </summary>
+        /// <returns>The description (a string)</returns>
         public virtual string getVolDesc()
         {
             if (this.volActivity == Satellite.GEOLOGIC_NONE) return "None";
@@ -1375,6 +1511,10 @@ namespace StarSystemGurpsGen
             return "Error";
         }
 
+        /// <summary>
+        /// Describes the tectonic activity of this satelite
+        /// </summary>
+        /// <returns>The description (a string)</returns>
         public virtual string getTecDesc()
         {
             if (this.tecActivity == Satellite.GEOLOGIC_NONE) return "None";
@@ -1386,10 +1526,10 @@ namespace StarSystemGurpsGen
             return "Error";
         }
         
-        // .. think this should be a string return.
-        // 15 FEB 2013 - Is now, too.
-
-
+       /// <summary>
+       /// Used to describe the satellite type within the object
+       /// </summary>
+       /// <returns>The description</returns>
         protected virtual string convSatelliteTypeToString()
         {
             if (this.SatelliteType == Satellite.SUBTYPE_AMMONIA)
@@ -1397,7 +1537,12 @@ namespace StarSystemGurpsGen
             if (this.SatelliteType == Satellite.SUBTYPE_CHTHONIAN)
                 return "Chthonian";
             if (this.SatelliteType == Satellite.SUBTYPE_GARDEN)
-                return "Garden";
+            {
+                if (this.hydCoverage < 1)
+                    return "Garden";
+                else
+                    return "Oceanic Garden";
+            }
             if (this.SatelliteType == Satellite.SUBTYPE_GREENHOUSE)
             {
                 if (this.hydCoverage > 0)
@@ -1416,21 +1561,46 @@ namespace StarSystemGurpsGen
             if (this.SatelliteType == Satellite.SUBTYPE_SULFUR)
                 return "Sulfur";
 
+            //base types
+            if (this.baseType == Satellite.BASETYPE_ASTEROIDBELT)
+                return "Asteroid Belt";
+            if (this.baseType == Satellite.BASETYPE_EMPTY)
+                return "Empty";
+            if (this.baseType == Satellite.BASETYPE_TERRESTIAL)
+                return "Terrestial";
+            if (this.baseType == Satellite.BASETYPE_MOON)
+                return "Moon";
+            if (this.baseType == Satellite.BASETYPE_UNSET)
+                return "Unset";
+            if (this.baseType == Satellite.BASETYPE_GASGIANT)
+                return "Gas Giant";
+
             return "???";
 
         }
 
-        public virtual string convSatelliteTypeToString(int flag)
+        /// <summary>
+        /// Describes the satelite type, given the subtype.
+        /// </summary>
+        /// <param name="flag">Subtype flag</param>
+        /// <param name="hydCoverage">The hydrographic coverage of the planet</param>
+        /// <returns>description of the satellite</returns>
+        public virtual string convSatelliteTypeToString(double hydCoverage, int flag)
         {
             if (flag == Satellite.SUBTYPE_AMMONIA)
                 return "Ammonia";
             if (flag == Satellite.SUBTYPE_CHTHONIAN)
                 return "Chthonian";
             if (flag == Satellite.SUBTYPE_GARDEN)
-                return "Garden";
+            {
+                if (hydCoverage < 1)
+                    return "Garden";
+                else
+                    return "Oceanic Garden";
+            }
             if (flag == Satellite.SUBTYPE_GREENHOUSE)
             {
-                if (this.hydCoverage > 0)
+                if (hydCoverage > 0)
                     return "Wet Greenhouse";
                 else
                     return "Dry Greenhouse";
@@ -1461,6 +1631,10 @@ namespace StarSystemGurpsGen
 
         }
 
+        /// <summary>
+        ///  Describe the size of the satelite of the self object
+        /// </summary>
+        /// <returns>Return the description (string)</returns>
         protected virtual string describeSatelliteSize()
         {
             if (this.baseType == Satellite.BASETYPE_MOON || this.baseType == Satellite.BASETYPE_TERRESTIAL)
@@ -1469,6 +1643,7 @@ namespace StarSystemGurpsGen
                 if (this.SatelliteSize == Satellite.SIZE_SMALL) return "Small";
                 if (this.SatelliteSize == Satellite.SIZE_MEDIUM) return "Standard";
                 if (this.SatelliteSize == Satellite.SIZE_LARGE) return "Large";
+                return "???";
             }
 
             if (this.baseType == Satellite.BASETYPE_GASGIANT)
@@ -1476,6 +1651,7 @@ namespace StarSystemGurpsGen
                 if (this.SatelliteSize == Satellite.SIZE_SMALL) return "Small";
                 if (this.SatelliteSize == Satellite.SIZE_MEDIUM) return "Medium";
                 if (this.SatelliteSize == Satellite.SIZE_LARGE) return "Large";
+                return "???";
             }
 
             if (this.baseType == Satellite.BASETYPE_ASTEROIDBELT)
@@ -1484,46 +1660,78 @@ namespace StarSystemGurpsGen
                 if (this.SatelliteSize == Satellite.SIZE_SMALL) return "Light";
                 if (this.SatelliteSize == Satellite.SIZE_MEDIUM) return "Moderate";
                 if (this.SatelliteSize == Satellite.SIZE_LARGE) return "Dense";
+                return "???";
+            }
+
+            if (this.baseType == Satellite.BASETYPE_EMPTY)
+            {
+                return "";
             }
 
             return "???";
         }
 
-        protected virtual string describeSatelliteSize(int flag)
+        /// <summary>
+        /// Describe the satellite size given a flag (used for access outside the object)
+        /// </summary>
+        /// <param name="flag">The flag describing the size of the satellite</param>
+        /// <param name="baseType">The flag describing the base type of the satellite</param>
+        /// <returns>The description</returns>
+        public static string describeSatelliteSize(int baseType, int flag)
         {
-            if (this.baseType == Satellite.BASETYPE_MOON || this.baseType == Satellite.BASETYPE_TERRESTIAL)
+            if (baseType == Satellite.BASETYPE_MOON || baseType == Satellite.BASETYPE_TERRESTIAL)
             {
                 if (flag == Satellite.SIZE_TINY) return "Tiny";
                 if (flag == Satellite.SIZE_SMALL) return "Small";
                 if (flag == Satellite.SIZE_MEDIUM) return "Standard";
                 if (flag == Satellite.SIZE_LARGE) return "Large";
+                return "???";
             }
 
-            if (this.baseType == Satellite.BASETYPE_GASGIANT)
+            if (baseType == Satellite.BASETYPE_GASGIANT)
             {
                 if (flag == Satellite.SIZE_SMALL) return "Small";
                 if (flag == Satellite.SIZE_MEDIUM) return "Medium";
                 if (flag == Satellite.SIZE_LARGE) return "Large";
+                return "???";
             }
 
-            if (this.baseType == Satellite.BASETYPE_ASTEROIDBELT)
+            if (baseType == Satellite.BASETYPE_ASTEROIDBELT)
             {
                 if (flag == Satellite.SIZE_TINY) return "Sparse";
                 if (flag == Satellite.SIZE_SMALL) return "Light";
                 if (flag == Satellite.SIZE_MEDIUM) return "Moderate";
                 if (flag == Satellite.SIZE_LARGE) return "Dense";
+                return "???";
             }
 
             return "???";
         }
 
+        /// <summary>
+        /// Returns the planetary diameter in KM, rather than Earth diameters
+        /// </summary>
+        /// <returns>double diameter in KM</returns>
+        public virtual double diameterInKM()
+        {
+            return this.diameter * 12756;
+        }
 
-        //converts the climate flag into a string.
-        protected virtual string getClimateDesc(int climate)
+        public virtual string descCurrentClimate()
+        {
+            return this.getClimateDesc(this.getClimate(this.surfaceTemp));
+        }
+
+        /// <summary>
+        /// This describes the climate given a flag.
+        /// </summary>
+        /// <param name="climate">The climate flag</param>
+        /// <returns>The description (a string) of this climate</returns>
+        public virtual string getClimateDesc(int climate)
         {
             
             if (climate == CLIMATE_NONE) 
-                return "Climate: None (no atmosphere)";
+                return "Climate: No atmosphere";
             
             if (climate == CLIMATE_FROZEN) 
                 return "Climate: Frozen (Below -20° F)";
@@ -1586,6 +1794,10 @@ namespace StarSystemGurpsGen
             return ERROR_GENERIC;
         }
 
+        /// <summary>
+        /// This describes the current atmospheric category
+        /// </summary>
+        /// <returns>A string description of the category</returns>
         public virtual string getDescAtmCategory()
         {
 
@@ -1609,6 +1821,11 @@ namespace StarSystemGurpsGen
             return "???";
         }
 
+        /// <summary>
+        /// Converting the flags describing various atmospheric conditions
+        /// </summary>
+        /// <param name="code">The code to be described</param>
+        /// <returns>A description of the code</returns>
         public virtual string convAtmCodeToString(int code)
         {
             String ret = "";
@@ -1639,6 +1856,11 @@ namespace StarSystemGurpsGen
 
         }
 
+        /// <summary>
+        /// Convert the description flag to a string for description
+        /// </summary>
+        /// <param name="i">The flag</param>
+        /// <returns>The string describing the flag</returns>
         public virtual string convDescCodeToString(int i)
         {
             if (i == Satellite.DESC_FAINTRINGSYS) return "Faint Ring System";
@@ -1650,7 +1872,12 @@ namespace StarSystemGurpsGen
             return "???";
         }
 
-        //gets the eccentricity of the orbit
+        /// <summary>
+        /// Generates the eccentricity of the planet's orbit around it's primary.
+        /// </summary>
+        /// <param name="flag">The gas giant flag</param>
+        /// <param name="snowLine">Location of the snow line</param>
+        /// <param name="ourDice">Our dice object</param>
         public virtual void getPlanetEccentricity(int flag, double snowLine, Dice ourDice)
         {
 
@@ -1686,6 +1913,11 @@ namespace StarSystemGurpsGen
 
             this.orbitalEccent = this.orbitalEccent + mod;
         }
+
+        /// <summary>
+        /// Generate (and store) the orbital velocity for an object (sidereal period)
+        /// </summary>
+        /// <param name="ourBag">Dice object</param>
         public void generateOrbitalVelocity(Dice ourBag)
         {
             if (this.tideTotal < 50)
@@ -1742,6 +1974,11 @@ namespace StarSystemGurpsGen
             }
         }
 
+        /// <summary>
+        /// This function creates a generic name for satellites and moons
+        /// </summary>
+        /// <param name="parentName">The star's name</param>
+        /// <param name="systemName">The system's name</param>
         public virtual void genGenericName(String parentName, String systemName)
         {
             base.genGenericName();
@@ -1775,7 +2012,12 @@ namespace StarSystemGurpsGen
             }
         }
 
-        //creates moons by 4th ed rules
+        /// <summary>
+        /// Creaates moons around sateliets according to GURPS 4e rules.
+        /// </summary>
+        /// <param name="sysName">The system name</param>
+        /// <param name="ourBag">Dice object used in rolling</param>
+        /// <param name="flag">The OptionCont flag describing where we put moon orbits</param>
         public void createMoons(string sysName, Dice ourBag, int flag = 0)
         {
             String[] moonletNames = { "Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", "Lambda", "Mu",
@@ -1839,8 +2081,8 @@ namespace StarSystemGurpsGen
                 
                 if (this.orbitalRadius <= .75) numRoll = 0;
 
-                if (OptionCont.maxMoonsOverGarden != -1 && this.SatelliteType == SUBTYPE_GARDEN && OptionCont.maxMoonsOverGarden <= 3)
-                    numRoll = OptionCont.maxMoonsOverGarden;
+                if (OptionCont.getNumberOfMoonsOverGarden() != -1 && this.SatelliteType == SUBTYPE_GARDEN)
+                    numRoll = OptionCont.getNumberOfMoonsOverGarden();
 
                 if (numRoll > 0){
                     for (int i = 0; i < numRoll; i++)
@@ -1931,12 +2173,12 @@ namespace StarSystemGurpsGen
                     for (int i = 0; i < numRoll; i++)
                     {
                         int size = Satellite.SIZE_MEDIUM;
-                       
+
                         roll = ourBag.gurpsRoll();
                         if (roll >= 15) size = Satellite.SIZE_MEDIUM;
                         if (roll >= 12 && roll <= 14) size = Satellite.SIZE_SMALL;
                         if (roll < 12) size = Satellite.SIZE_TINY;
-                        
+
 
                         do
                         {
@@ -1983,26 +2225,73 @@ namespace StarSystemGurpsGen
                     }
                 }
 
-                if (this.baseType == Satellite.BASETYPE_GASGIANT)
+            }
+            
+
+
+            if (this.baseType == Satellite.BASETYPE_GASGIANT)
+            {
+                if (this.innerMoonlets.Count >= 10)
                 {
-                    if (this.innerMoonlets.Count >= 10)
-                    {
-                        this.updateDescListing(Satellite.DESC_SPECRINGSYS);
-                    }
-                    if (this.innerMoonlets.Count >= 6 && this.innerMoonlets.Count < 9)
-                    {
-                        this.updateDescListing(Satellite.DESC_FAINTRINGSYS);
-                    }
+                    this.updateDescListing(Satellite.DESC_SPECRINGSYS);
+                }
+                if (this.innerMoonlets.Count >= 6 && this.innerMoonlets.Count < 9)
+                {
+                    this.updateDescListing(Satellite.DESC_FAINTRINGSYS);
                 }
             }
         }
 
+        /// <summary>
+        ///  This function describes the atm in a string.
+        /// </summary>
+        /// <returns></returns>
+        public string descAtm()
+        {
+            List<string> dA = new List<string>();
+
+            //find conditions
+            foreach (int i in this.atmCate)
+            {
+                if (i > ATM_BASE_COND && i < (COND_INCREMENT + ATM_BASE_COND)) dA.Add("Special Condition");
+                if (i > ATM_BASE_MARGINAL && i < (MARGINAL_INCREMENT + ATM_BASE_MARGINAL)) dA.Add("Marginal");
+                if (i > ATM_BASE_TOXIC && i < (TOXIC_INCREMENT + ATM_BASE_TOXIC)) dA.Add("Toxic");
+            }
+
+            string desc = "";
+            for (int i = 0; i < dA.Count; i++)
+            {
+                desc += dA[i];
+                if ((i + 1) < dA.Count) desc += " & ";
+            }
+
+            return desc;
+        }
+
+        /// <summary>
+        /// Updates the description of the atmosphere
+        /// </summary>
+        /// <param name="flag">The flag we're adding to the atmosphere</param>
         public void updateDescListing(int flag)
         {
             this.descListing.Add(flag);
         }
 
-        //helper functions for create moons
+        /// <summary>
+        /// Describes a planet in the format of Large(Rock) for example
+        /// </summary>
+        /// <returns>string describing size(type)</returns>
+        public string descSizeType()
+        {
+            return (this.describeSatelliteSize() + "(" + this.convSatelliteTypeToString() + ")");
+        }
+
+        /// <summary>
+        /// A helper function to scan for occupied orbits (during moon generation)
+        /// </summary>
+        /// <param name="occuOrbits">The list of occupied orbits</param>
+        /// <param name="current">The orbit to add</param>
+        /// <returns>True if there is an orbit conflict, false otherwise</returns>
         protected static bool scanOccupiedOrbits(List<double> occuOrbits, double current){
             foreach (double orbit in occuOrbits){
                 if (orbit == current) return true;
@@ -2011,6 +2300,13 @@ namespace StarSystemGurpsGen
             return false;
         } 
 
+         /// <summary>
+         /// Another helper function: makes sure that the orbit is not within the safety margin
+         /// </summary>
+         /// <param name="occuOrbits">The list of current objects</param>
+         /// <param name="current">the orbit to be added</param>
+         /// <param name="margin">The margin of safety</param>
+         /// <returns></returns>
          protected static bool withinOtherOrbits(List<double> occuOrbits, double current, double margin)
          {
             foreach (double orbit in occuOrbits)
@@ -2021,7 +2317,10 @@ namespace StarSystemGurpsGen
             return false;
         }
 
-       //toString
+         /// <summary>
+         /// The ToString Object for our planet or moon
+         /// </summary>
+         /// <returns>A description of the object</returns>
          public override string ToString()
          {
              String ret ="";
@@ -2096,7 +2395,7 @@ namespace StarSystemGurpsGen
              
              ret = ret + nL + spacing + "Blackbody Temperature is " + Math.Round(this.blackbodyTemp, numOfSmallDigits) + "K";
 
-             ret = ret + nL + spacing + "Orbital Parent: " + Star.getDescOrderFlag(this.parentID) + ".";
+             ret = ret + nL + spacing + "Orbital Parent: " + Star.getDescSelfFlag(this.parentID) + ".";
 
              ret = ret + nL;
 
@@ -2278,7 +2577,11 @@ namespace StarSystemGurpsGen
              return ret;
          }
 
-         //This assumes you'll pass it a Kelvin temp. Or it'll be kinda off.
+         /// <summary>
+         /// This lists Kelvin, Farenheit and Celsius temperatures. 
+         /// </summary>
+         /// <param name="temp">The temperature in Kelvin</param>
+         /// <returns>A string describing all three</returns>
          protected string tempInKelFarCel(double temp)
          {
              String ret = "";
@@ -2289,13 +2592,17 @@ namespace StarSystemGurpsGen
 
          }
 
-       //totals the tidal force for easy comparison
+         /// <summary>
+         /// Calculates the total tidal force acting on an object
+         /// </summary>
+         /// <param name="sysAge">The age of the system</param>
+         /// <returns>The Tidal Force</returns>
          public double totalTidalForce(double sysAge)
          {
              double val = 0.0;
              foreach (KeyValuePair<int, double> tideData in this.tideForce)
              {
-                 if (!((tideData.Key >= TIDE_MOON1 && tideData.Key <= TIDE_MOON10) && OptionCont.ignoreLunarTides))
+                 if (!((tideData.Key >= TIDE_MOON1 && tideData.Key <= TIDE_MOON10) && OptionCont.ignoreLunarTidesOnGardenWorlds))
                      val = val + tideData.Value;
              }
 
@@ -2303,6 +2610,10 @@ namespace StarSystemGurpsGen
              return val;
          }
 
+         /// <summary>
+         /// Output formatted tidal data 
+         /// </summary>
+         /// <returns>Formatted Tidal Data</returns>
          public string displayTidalData()
          {
              string ret = "";
@@ -2339,7 +2650,7 @@ namespace StarSystemGurpsGen
 
                  if (tideData.Key >= Satellite.TIDE_MOON_BASE && tideData.Key <= (Satellite.TIDE_MOON_BASE +10))
                  {
-                     if (OptionCont.ignoreLunarTides && this.SatelliteType == SUBTYPE_GARDEN)
+                     if (OptionCont.ignoreLunarTidesOnGardenWorlds && this.SatelliteType == SUBTYPE_GARDEN)
                          addStr = false;
                  } 
 

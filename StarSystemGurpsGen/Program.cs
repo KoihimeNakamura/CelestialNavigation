@@ -20,14 +20,17 @@ namespace StarSystemGurpsGen
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new StarSystemGurpsGen());
+            Application.Run(new CelestialNavigation());
         }
 
-        public static double GetRatio(double x, double dist)
-        {
-            return x / dist;
-        }
-
+        /*
+        /// <summary>
+        /// This function gives a more complex input box.
+        /// </summary>
+        /// <param name="title">Title of the box</param>
+        /// <param name="promptText">Prompt text</param>
+        /// <param name="value">output string</param>
+        /// <returns>a DialogResult</returns>
         public static DialogResult InputBox(string title, string promptText, ref string value)
         {
             Form form = new Form();
@@ -69,7 +72,7 @@ namespace StarSystemGurpsGen
             value = textBox.Text;
             return dialogResult;
         }
-
+        */
 
     }
 }

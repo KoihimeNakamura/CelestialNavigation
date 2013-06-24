@@ -24,9 +24,9 @@ namespace StarSystemGurpsGen
         //member arrays of the object
 
         /// <summary>
-        ///   This member contains the table we roll on for stellar mass.
+        /// This member contains the table we roll on for stellar mass. Contains an array of size 19x19, mainly to make passing dierolls easier.
         /// </summary>
-        public static double[][] starMassTable = new double[][]{
+        protected static double[][] starMassTableByRoll = new double[][]{
                  new double[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //Index 0
                  new double[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //Roll 1
                  new double[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //Roll 2
@@ -47,6 +47,12 @@ namespace StarSystemGurpsGen
                  new double[] {0,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1}, //Roll 17
                  new double[] {0,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1}, //Roll 18
              };
+
+        /// <summary>
+        /// This member contains the table we use to determine stellar mass by index.
+        /// </summary>
+        protected static double[] starMassTableByIndex = new double[] { .1,.15,.2,.25,.3,.35,.4,.45,.5,.55,.6,.65,.7,.75,
+            .8,.85,.9,.95,1.0,1.05,1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.5,1.55,1.6,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2 };
 
         /// <summary>
         ///  The minimum luminosity of the star, given its' mass
@@ -184,6 +190,11 @@ namespace StarSystemGurpsGen
         /// </summary>
         public string starColor { get; set; }
 
+        /// <summary>
+        ///  Base constructor, given no details.
+        /// </summary>
+        /// <param name="parent">The parent this star belongs to. (IS_PRIMARY for a primary star)</param>
+        /// <param name="self">The ID of this star</param>
         public Star(int parent, int self) : base(parent, self)
         {
             this.orbitalRadius = 0.0;
@@ -192,6 +203,14 @@ namespace StarSystemGurpsGen
             this.sysPlanets = new List<Satellite>();
         }
 
+        /// <summary>
+        /// A full constructor.
+        /// </summary>
+        /// <param name="age">The age of the star</param>
+        /// <param name="parent">The parent this star belongs to. (IS_PRIMARY for a primary star)</param>
+        /// <param name="self">The ID of this star</param>
+        /// <param name="order">Where the star is in the sequence</param>
+        /// <param name="baseName">The name of the system</param>
         public Star(double age, int parent, int self, int order, string baseName)
             : base(parent, self)
         {
@@ -204,6 +223,13 @@ namespace StarSystemGurpsGen
             this.sysPlanets = new List<Satellite>();
         }
 
+        /// <summary>
+        /// Constructor given the age, parent, self and Order.
+        /// </summary>
+        /// <param name="age">Age of the star</param>
+        /// <param name="parent">The star this belongs to (for a priamry star, put IS_PRIMARY here)</param>
+        /// <param name="self">The star's ID</param>
+        /// <param name="order">Where is it in the system?</param>
         public Star(double age, int parent, int self, int order) : base(parent,self)
         {
             this.starAge = age;
@@ -214,7 +240,12 @@ namespace StarSystemGurpsGen
             this.sysPlanets = new List<Satellite>();
         }
 
-        //this function names the star (generically)
+        /// <summary>
+        /// This function returns a generic name on the scheme [SYSTEMNAME-ID]
+        /// </summary>
+        /// <param name="sysName">The system name</param>
+        /// <param name="id">Where the star is in the system (number)</param>
+        /// <returns>The generic name</returns>
         public static string genGenericName(String sysName, int id)
         {
             char[] starNames = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I' };
@@ -370,31 +401,49 @@ namespace StarSystemGurpsGen
             if (!isWhiteDwarf) this.initMass = mass;
         }
 
-        //add the order ID.
+
+        /// <summary>
+        /// Sets the order of this star
+        /// </summary>
+        /// <param name="orderID">The order of this star in the system</param>
         public virtual void addOrder(int orderID)
         {
             this.orderID = orderID;
         }
 
-        //generic update lumin (auto determine it in case we don't need to)
+        /// <summary>
+        /// This updates the star to what the current should be given no alterations.
+        /// </summary>
+        /// <param name="ageL">the age line of the star</param>
+        /// <param name="age">The age of the star</param>
+        /// <param name="mass">The current mass of the star</param>
+        /// <returns>The current lumonsity of the star</returns>
         public static double getCurrLumin(StarAgeLine ageL, double age, double mass){
             int ageGroup = ageL.findCurrentAgeGroup(age);
     
-            if (ageGroup == StarAgeLine.RET_MAINBRANCH && mass < .45)
+            if (ageGroup == StarAgeLine.RET_MAINBRANCH && mass < .45) //if it's under .45 solar masses, it'll always be the minimum luminosity.
                 return Star.getMinLumin(mass);
-            if (ageGroup == StarAgeLine.RET_MAINBRANCH && mass >= .45)  
+            if (ageGroup == StarAgeLine.RET_MAINBRANCH && mass >= .45)  // now it's going to be somewhere between the minimum and maximum, given it's age.
                     return (Star.getMinLumin(mass) + ((age / ageL.getMainLimit()) * (Star.getMaxLumin(mass) - Star.getMinLumin(mass))));
-            if (ageGroup == StarAgeLine.RET_SUBBRANCH)
+            if (ageGroup == StarAgeLine.RET_SUBBRANCH) //simply maxmium luminsoity
                     return Star.getMaxLumin(mass);
             if (ageGroup == StarAgeLine.RET_GIANTBRANCH)
-                return Star.getMaxLumin(mass) * 10000; //IMPLEMENTED HOUSE RULE.
-            if (ageGroup == StarAgeLine.RET_DWARFBRANCH)
-                return .0043;
+                return Star.getMaxLumin(mass) * 10000; //IMPLEMENTED HOUSE RULE. Yeah. Uh.. Yeah.
+            if (ageGroup == StarAgeLine.RET_COLLASPEDSTAR)
+                return (1611047115.0 * mass * Math.Pow((ageL.getAgeFromCollapse(age) * 100000000),(-7.0 / 5.0))); //corrected from report.
 
             return 0;
         }
-
-        public static double getCurrentTemp(StarAgeLine ageL, double age, double mass, Dice ourDice)
+        /// <summary>
+        /// This updates the star to the current surface temperature given no alterations
+        /// </summary>
+        /// <param name="ageL">the age line of the star</param>
+        /// <param name="lumin">The current luminosity of the star (used for White Dwarfs)</param>
+        /// <param name="age">The age of the star</param>
+        /// <param name="mass">The current mass of the star</param>
+        /// <param name="ourDice">Dice (due to randomization of the temperature)</param>
+        /// <returns>The current temperature of the star</returns>
+        public static double getCurrentTemp(StarAgeLine ageL, double lumin, double age, double mass, Dice ourDice)
         {
             if (ageL.findCurrentAgeGroup(age) == StarAgeLine.RET_MAINBRANCH) 
                 return Star.getInitTemp(mass);
@@ -402,22 +451,26 @@ namespace StarSystemGurpsGen
                 return (Star.getInitTemp(mass) - ageL.calcWithInSubLimit(age) * (Star.getInitTemp(mass) - 4800));
             if (ageL.findCurrentAgeGroup(age) == StarAgeLine.RET_GIANTBRANCH)
                 return (3000 + ourDice.rng(2, 6, -2) * 200);
-            if (ageL.findCurrentAgeGroup(age) == StarAgeLine.RET_DWARFBRANCH)
-                return Star.WhiteDwarfTemp(mass, (age - ageL.getGiantLimit()));
+            if (ageL.findCurrentAgeGroup(age) == StarAgeLine.RET_COLLASPEDSTAR)
+                return Math.Pow((lumin / Math.Pow(Star.getRadius(mass,0,lumin,StarAgeLine.RET_COLLASPEDSTAR), 2)) * (5.38937375 * Math.Pow(10, 26)), 1 / 4);
 
             return 0;
         }
 
+        /// <summary>
+        /// This function sets the inital luminosity of a Star object
+        /// </summary>
         public virtual void setLumin(){
             int currAgeGroup = this.evoLine.findCurrentAgeGroup(this.starAge);
             this.initLumin = getMinLumin(); //this applies for most stars.
   
             this.currLumin = Star.getCurrLumin(this.evoLine, this.starAge, this.currMass);
   
+            //set the maximum luminosity. Used for determining the formation zones if the star is in a few phases.
             if (currAgeGroup == StarAgeLine.RET_GIANTBRANCH)
                 this.maxLumin = this.currLumin;
-            
-            if (currAgeGroup == StarAgeLine.RET_DWARFBRANCH)
+
+            if (currAgeGroup == StarAgeLine.RET_COLLASPEDSTAR)
                 this.maxLumin = Star.getMinLumin(this.currMass) * 10000;
         }
 
@@ -455,13 +508,15 @@ namespace StarSystemGurpsGen
             if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_MAINBRANCH) return "Main Sequence";
             if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_SUBBRANCH) return "Subgiant Branch";
             if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_GIANTBRANCH) return "Asymptotic Giant Branch";
-            if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_DWARFBRANCH) return "White Dwarf";
+            if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_COLLASPEDSTAR) return "White Dwarf";
 
             return "INVALID STATUS";
         }
 
-
-        public virtual void setSpectralType(Dice ourDice)
+        /// <summary>
+        /// This sets the spectral type of our star.
+        /// </summary>
+        public virtual void setSpectralType()
         {
             if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_MAINBRANCH)
                 this.specType = Star.getStellarTypeFromMass(this.currMass) + " V";
@@ -473,18 +528,89 @@ namespace StarSystemGurpsGen
                 this.specType = Star.getStellarTypeFromTemp(this.currMass) + " II";
 
             //the fun one - white dwarf
-            if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_DWARFBRANCH)
+            if (this.evoLine.findCurrentAgeGroup(this.starAge) == StarAgeLine.RET_COLLASPEDSTAR)
             {
-                double surfTemp = 50400.0 / this.effTemp;
-                surfTemp = Math.Round(surfTemp, 1);
-                if (this.effTemp < 10) surfTemp = 10; //fixes a DBZ_INFINTY bug.
-
-                string[] types = {"DA","DAB","DAO","DAZ","DB","DBZ","DC","DQ","DZ","DO","DX"};
-
-                this.specType = types[ourDice.rng(1, 11, -1)] + surfTemp;
+                if (this.effTemp >= 1000)
+                    this.specType = "DA";
+                if (this.effTemp >= 300 && this.effTemp < 1000)
+                    this.specType = "DB";
+                if (this.effTemp < 300)
+                    this.specType = "DC";
             }
 
         }
+        
+
+        public static string setColor(Dice ourDice, double effTemp)
+        {
+
+            if (!OptionCont.fantasyColors)
+            {
+                if (effTemp >= 33000)
+                    return "Blue";
+                if (effTemp >= 10000 && effTemp < 33000)
+                    return "Blue-White";
+                if (effTemp >= 7500 && effTemp < 10000) 
+                    return "Whitish Blue";
+                if (effTemp >= 6000 && effTemp < 7500) 
+                    return "White";
+                if (effTemp >= 5200 && effTemp < 6000) 
+                    return "Yellow";
+                if (effTemp >= 4250 && effTemp < 5200) 
+                    return "Yellowish Orange";
+                if (effTemp >= 3700 && effTemp < 4250) 
+                    return "Orange";
+                if (effTemp >= 2000 && effTemp < 3700) 
+                    return "Orangish Red";
+                if (effTemp >= 1300 && effTemp < 2000) 
+                    return "Red";
+                if (effTemp >= 700 && effTemp < 1300) 
+                    return "Purplish Red";
+                if (effTemp >= 100 && effTemp < 700) 
+                    return "Brown";
+                if (effTemp < 100) 
+                    return "Black";
+            }
+            else
+            {
+                int roll = ourDice.rng(100019);
+                if (libStarGen.inbetween(roll, 0, 10)) 
+                    return "Black";
+                if (libStarGen.inbetween(roll, 11, 531))
+                    return "Green";
+                if (libStarGen.inbetween(roll, 532, 952))
+                    return "Yellow-Green";
+                if (libStarGen.inbetween(roll, 953, 6057))
+                    return "Red-Orange";
+                if (libStarGen.inbetween(roll, 6058, 6835))
+                    return "Blue";
+                if (libStarGen.inbetween(roll, 6836, 11940))
+                    return "Purple-Red";
+                if (libStarGen.inbetween(roll, 11941, 23948))
+                    return "Red";
+                if (libStarGen.inbetween(roll, 23949, 49960))
+                    return "Yellow";
+                if (libStarGen.inbetween(roll, 49961, 75972))
+                    return "Orange";
+                if (libStarGen.inbetween(roll, 75973, 87980))
+                    return "Yellow-Orange";
+                if (libStarGen.inbetween(roll, 87981, 93085))
+                    return "Blue-White";
+                if (libStarGen.inbetween(roll, 93086, 93763))
+                    return "White";
+                if (libStarGen.inbetween(roll, 93764, 98868))
+                    return "White-Blue";
+                if (libStarGen.inbetween(roll, 98869, 99289))
+                    return "Green-Blue";
+                if (libStarGen.inbetween(roll, 99290, 99710))
+                    return "Blue-Violet";
+                if (libStarGen.inbetween(roll, 99711, 100019))
+                    return "Purple";
+            }
+
+            return "ERROR";
+        }
+
 
         public virtual bool testInitlizationZones()
         {
@@ -576,12 +702,12 @@ namespace StarSystemGurpsGen
             if (this.selfID != IS_PRIMARY)
             {
                 desc = intro + " " + this.currMass + " solar masses, " + Math.Round(this.currLumin, OptionCont.numberOfDecimal) + " solar luminosities. Eff Temp: " + this.effTemp + "K, apparent color ";
-                desc += Star.getColor(this.effTemp) + ". This star orbits " + Star.getDescOrderFlag(this.parentID) + " at " + this.orbitalRadius + "AU out with an eccentricity of " + this.orbitalEccent;
+                desc += this.starColor + ". This star orbits " + Star.getDescSelfFlag(this.parentID) + " at " + this.orbitalRadius + "AU out with an eccentricity of " + this.orbitalEccent;
             }
             else
             {
                 desc = intro + " " + this.currMass + " solar masses, " + Math.Round(this.currLumin, OptionCont.numberOfDecimal) + " solar luminosities. Eff Temp: " + this.effTemp + "K, apparent color ";
-                desc += Star.getColor(this.effTemp);
+                desc += this.starColor;
             }
 
             return desc;
@@ -595,8 +721,8 @@ namespace StarSystemGurpsGen
             ret = ret + nL + "This star has " + this.currMass + " solar masses, and a current luminosity of " + Math.Round(this.currLumin,OptionCont.numberOfDecimal);
             ret = ret + nL + "solar luminosities. It has a surface temperature of " + Math.Round(this.effTemp,OptionCont.numberOfDecimal) + "K.";
             ret = ret + nL + "This star's radius is " + Math.Round(this.getRadiusAU(),OptionCont.numberOfDecimal) + " AU.";
-            ret = ret + nL + "Apparent Color : " + Star.getColor(this.effTemp);
-
+            ret = ret + nL + "Apparent Color : " + this.starColor;
+            
             if (OptionCont.getVerboseOutput())
             {
                 ret = ret + Environment.NewLine;
@@ -616,7 +742,7 @@ namespace StarSystemGurpsGen
 
             if (OptionCont.getVerboseOutput())
             {
-                ret = ret + nL + "Self ID: " + Star.getDescOrderFlag(this.selfID) + " and Parent ID: " + Star.getDescOrderFlag(this.parentID);
+                ret = ret + nL + "Self ID: " + Star.getDescSelfFlag(this.selfID) + " and Parent ID: " + Star.getDescSelfFlag(this.parentID);
                 ret = ret + nL;
             }
 
@@ -719,6 +845,15 @@ namespace StarSystemGurpsGen
             if (flag == Star.IS_TRICOMP) return "Trinary Companion";
 
             return "[ERROR]";
+        }
+
+        /// <summary>
+        /// This returns the current branch description for this star
+        /// </summary>
+        /// <returns>A string containing the branch description</returns>
+        public string returnCurrentBranchDesc()
+        {
+            return StarAgeLine.descBranch(this.evoLine.findCurrentAgeGroup(this.starAge));
         }
 
         public void giveOrbitalsOrder(ref int totalOrbitals)
