@@ -40,7 +40,7 @@
     <DocumentationFile>bin\Debug\CelestialNavigation.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -132,6 +132,12 @@
     <Compile Include="Stellar Objects\StarFlags.cs" />
     <Compile Include="Stellar Objects\StarFormulas.cs" />
     <Compile Include="Stellar Objects\StarSatellite.cs" />
+    <Compile Include="SystemRender.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SystemRender.Designer.cs">
+      <DependentUpon>SystemRender.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utility Classes\Dice.cs" />
     <Compile Include="Utility Classes\formationHelper.cs" />
     <Compile Include="Utility Classes\FormationZone.cs" />
@@ -162,8 +168,13 @@
     <EmbeddedResource Include="StarAlter.resx">
       <DependentUpon>StarAlter.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SystemRender.resx">
+      <DependentUpon>SystemRender.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="KoihimeCertA.pfx" />
-    <None Include="Properties\app.manifest" />
+    <None Include="Properties\app.manifest">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\DataSources\Satelite.datasource" />
     <None Include="Properties\DataSources\Star.datasource" />
     <None Include="Properties\DataSources\StarSystem.datasource" />

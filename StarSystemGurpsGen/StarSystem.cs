@@ -185,7 +185,7 @@ namespace StarSystemGurpsGen
         }
 
         /// <summary>
-        /// Clears all planets withotu removing the stars.
+        /// Clears all planets without removing the stars.
         /// </summary>
         public void clearPlanets()
         {

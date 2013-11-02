@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Windows.Forms;
+using System.Drawing;
+
 namespace StarSystemGurpsGen
 {
     /// <summary>
@@ -606,7 +609,7 @@ namespace StarSystemGurpsGen
         {
 
             double maxRatio = 2.0;
-            //double minRatio = 1.4;
+            double minRatio = 1.4;
             double minDistance = .15;
             bool firstGasGiant = true;
 
@@ -687,8 +690,9 @@ namespace StarSystemGurpsGen
                     }
 
                     //FORBIDDDEN ZONE
-                    if (s.getClosestDistToForbiddenZone(s.sysPlanets[i].orbitalRadius) <= minDistance || s.getClosestForbiddenZoneRatio(s.sysPlanets[i].orbitalRadius) < maxRatio)
+                    if (s.getClosestDistToForbiddenZone(s.sysPlanets[i].orbitalRadius) <= minDistance || (s.getClosestForbiddenZoneRatio(s.sysPlanets[i].orbitalRadius) < maxRatio && s.getClosestForbiddenZoneRatio(s.sysPlanets[i].orbitalRadius) > minRatio))
                     {
+                        //MessageBox.Show("THE FORBIDDEN ZONE!!!!");
                         mod = mod - 6;
                     }
 
@@ -703,8 +707,9 @@ namespace StarSystemGurpsGen
                     }
 
                     //now let's get the orbit type.
+                   // MessageBox.Show("Mod is " + mod);
                     mod = mod + myDice.gurpsRoll();
-                    
+                    //MessageBox.Show("Mod + Roll is " + mod);
                     if (mod <= 3)
                         s.sysPlanets[i].updateType(Satellite.BASETYPE_EMPTY);
 
