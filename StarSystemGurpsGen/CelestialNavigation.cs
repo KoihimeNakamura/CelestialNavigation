@@ -74,6 +74,7 @@ namespace StarSystemGurpsGen
             starTable.Columns.Add("Color", typeof(string));
             starTable.Columns.Add("Stellar Evolution Stage", typeof(string));
             starTable.Columns.Add("Flare Star", typeof(string));
+            starTable.Columns.Add("Orbital Details", typeof(string));
 
             planetTable = new DataTable("planetTable");
             planetTable.Columns.Add("Name", typeof(string));
@@ -139,6 +140,10 @@ namespace StarSystemGurpsGen
             //clear the tables.
             if (this.ourSystem.countStars() > 0)
             {
+                this.ourSystem.clearPlanets();
+                this.planetTable.Clear();
+                refreshPlanetDGV(); //woops! - run this BEFORE we dump the stars
+
                 this.ourSystem.sysStars.Clear();
                 this.starTable.Clear();
                 refreshStarDGV();
@@ -182,7 +187,7 @@ namespace StarSystemGurpsGen
             {
                 foreach (Star s in this.ourSystem.sysStars)
                 {
-                    object[] rowVal = new object[11];
+                    object[] rowVal = new object[12];
                     rowVal[0] = s.currMass;
                     rowVal[1] = s.name;
                     rowVal[2] = Star.getDescFromFlag(s.selfID);
@@ -194,6 +199,7 @@ namespace StarSystemGurpsGen
                     rowVal[8] = s.starColor;
                     rowVal[9] = s.returnCurrentBranchDesc();
                     rowVal[10] = s.isFlareStar;
+                    rowVal[11] = s.printOrbitalDetails();
 
                     starTable.Rows.Add(rowVal);
                 }
@@ -403,20 +409,26 @@ namespace StarSystemGurpsGen
 
         private void btnViewFull_Click(object sender, EventArgs e)
         {
-            string ourSystem = "";
+            string sysDesc = "";
 
-            ourSystem += "System Name: " + this.ourSystem.sysName + Environment.NewLine;
-            ourSystem += "System Age: " + this.ourSystem.sysAge + Environment.NewLine;
-            ourSystem += Environment.NewLine;
+            sysDesc += "System Name: " + this.ourSystem.sysName + Environment.NewLine;
+            sysDesc += "System Age: " + this.ourSystem.sysAge + Environment.NewLine;
+            sysDesc += Environment.NewLine;
             foreach (Star s in this.ourSystem.sysStars)
             {
-                ourSystem += s + Environment.NewLine;
-                ourSystem += Environment.NewLine;
+               sysDesc += s + Environment.NewLine;
+               sysDesc += Environment.NewLine;
             }
 
-            OutputWindow printSystem = new OutputWindow(ourSystem, this.ourSystem.sysName);
+            OutputWindow printSystem = new OutputWindow(sysDesc, this.ourSystem.sysName);
             printSystem.ShowDialog();
             
+        }
+
+        private void btnDrawSystem_Click(object sender, EventArgs e)
+        {
+            SystemRender senSystem = new SystemRender(this.ourSystem);
+            senSystem.Show();
         }
 
     }

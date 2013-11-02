@@ -41,6 +41,7 @@
             this.dgvPlanets = new System.Windows.Forms.DataGridView();
             this.chkEmptyDisplay = new System.Windows.Forms.CheckBox();
             this.btnViewFull = new System.Windows.Forms.Button();
+            this.btnDrawSystem = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStars)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPlanets)).BeginInit();
             this.SuspendLayout();
@@ -112,7 +113,7 @@
             // 
             // btnReset
             // 
-            this.btnReset.Location = new System.Drawing.Point(323, 3);
+            this.btnReset.Location = new System.Drawing.Point(422, 3);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(85, 19);
             this.btnReset.TabIndex = 7;
@@ -169,11 +170,23 @@
             this.btnViewFull.UseVisualStyleBackColor = true;
             this.btnViewFull.Click += new System.EventHandler(this.btnViewFull_Click);
             // 
+            // btnDrawSystem
+            // 
+            this.btnDrawSystem.Location = new System.Drawing.Point(321, 3);
+            this.btnDrawSystem.Name = "btnDrawSystem";
+            this.btnDrawSystem.Size = new System.Drawing.Size(95, 19);
+            this.btnDrawSystem.TabIndex = 13;
+            this.btnDrawSystem.Text = "Draw System";
+            this.btnDrawSystem.UseVisualStyleBackColor = true;
+            this.btnDrawSystem.Visible = false;
+            this.btnDrawSystem.Click += new System.EventHandler(this.btnDrawSystem_Click);
+            // 
             // CelestialNavigation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1299, 579);
+            this.Controls.Add(this.btnDrawSystem);
             this.Controls.Add(this.btnViewFull);
             this.Controls.Add(this.chkEmptyDisplay);
             this.Controls.Add(this.dgvPlanets);
@@ -211,5 +224,6 @@
         private System.Windows.Forms.DataGridView dgvPlanets;
         private System.Windows.Forms.CheckBox chkEmptyDisplay;
         private System.Windows.Forms.Button btnViewFull;
+        private System.Windows.Forms.Button btnDrawSystem;
     }
 }

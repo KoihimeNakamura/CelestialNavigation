@@ -712,6 +712,21 @@ namespace StarSystemGurpsGen
 
             return desc;
         }
+
+        /// <summary>
+        /// This function prints the Periapsis and Apapsis of stars around an orbiting primary.
+        /// </summary>
+        /// <returns></returns>
+        public string printOrbitalDetails()
+        {
+            if (this.selfID == IS_PRIMARY)
+                return "N/A";
+            else
+                return "Periapsis - " + Math.Round(Orbital.getPeriapsis(this.orbitalEccent, this.orbitalRadius), OptionCont.numberOfDecimal) + " AU. Apapsis - " + 
+                    Math.Round(Orbital.getApapsis(this.orbitalEccent, this.orbitalRadius), OptionCont.numberOfDecimal);
+
+        }
+
         public override string ToString()
         {
             String ret;
